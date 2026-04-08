@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm vite.config.js index.html eslint.config.js src/main.jsx src/App.css src/Appi.jsx src/assets/react.svg src/assets/vite.svg)",
+      "Bash(rm src/index.css)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
