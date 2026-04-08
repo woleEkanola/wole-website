@@ -836,69 +836,9 @@ export default function Home() {
                 </a>
               </div>
               <img
-                src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=woleekanola&theme=default"
-                alt="GitHub contribution timeline"
+                src="https://ghchart.rshah.org/woleekanola"
+                alt="GitHub contribution calendar"
                 className="w-full rounded-lg"
-                loading="lazy"
-              />
-            </div>
-          </FadeIn>
-
-          {/* Row 2 — Stats + Streak */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <FadeIn delay={0.14}>
-              <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <img
-                  src="https://github-readme-stats.vercel.app/api?username=woleekanola&show_icons=true&hide_border=true&count_private=true&include_all_commits=true&bg_color=ffffff&title_color=111827&icon_color=2563EB&text_color=6B7280"
-                  alt="GitHub stats for woleekanola"
-                  className="w-full"
-                  loading="lazy"
-                />
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.2}>
-              <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <img
-                  src="https://streak-stats.demolab.com/?user=woleekanola&hide_border=true&background=ffffff&stroke=f3f4f6&ring=2563EB&fire=4F46E5&currStreakLabel=111827&sideLabels=6B7280&dates=9CA3AF&sideNums=111827&currStreakNum=111827"
-                  alt="GitHub streak stats for woleekanola"
-                  className="w-full"
-                  loading="lazy"
-                />
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* Row 3 — Top languages + Productive time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <FadeIn delay={0.22}>
-              <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <img
-                  src="https://github-readme-stats.vercel.app/api/top-langs/?username=woleekanola&layout=compact&hide_border=true&bg_color=ffffff&title_color=111827&text_color=6B7280&langs_count=8"
-                  alt="Top languages"
-                  className="w-full"
-                  loading="lazy"
-                />
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.26}>
-              <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <img
-                  src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=woleekanola&theme=default"
-                  alt="Repos per language"
-                  className="w-full"
-                  loading="lazy"
-                />
-              </div>
-            </FadeIn>
-          </div>
-
-          {/* Row 4 — Activity graph full width */}
-          <FadeIn delay={0.3}>
-            <div className="rounded-2xl bg-white border border-gray-100 shadow-sm overflow-hidden mb-8">
-              <img
-                src="https://github-readme-activity-graph.vercel.app/graph?username=woleekanola&theme=minimal&hide_border=true&bg_color=ffffff&color=374151&line=2563EB&point=4F46E5&area=true&area_color=EEF2FF"
-                alt="GitHub activity graph"
-                className="w-full"
                 loading="lazy"
               />
             </div>
