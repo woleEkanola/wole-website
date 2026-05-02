@@ -190,6 +190,105 @@ export default function Home() {
         {/* Soft blue orb */}
         <div className="absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full bg-blue-50 blur-[120px] opacity-70 pointer-events-none" />
 
+        {/* ── Line Art Sketches (floating background decorations) ── */}
+        {/* Sketch 1: Architectural building under construction — top right */}
+        <svg className="absolute top-[8%] right-[8%] w-64 h-64 md:w-80 md:h-80 opacity-[0.06] pointer-events-none" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Base structure */}
+          <path d="M60 260 L60 80 L150 20 L240 80 L240 260" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Floor lines */}
+          <line x1="60" y1="120" x2="240" y2="120" stroke="#2563EB" strokeWidth="1" strokeDasharray="4 3" strokeLinecap="round"/>
+          <line x1="60" y1="160" x2="240" y2="160" stroke="#2563EB" strokeWidth="1" strokeDasharray="4 3" strokeLinecap="round"/>
+          <line x1="60" y1="200" x2="240" y2="200" stroke="#2563EB" strokeWidth="1" strokeDasharray="4 3" strokeLinecap="round"/>
+          {/* Center column */}
+          <line x1="150" y1="80" x2="150" y2="260" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 4" strokeLinecap="round"/>
+          {/* Windows left */}
+          <rect x="85" y="95" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="85" y="135" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="85" y="175" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="85" y="215" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          {/* Windows right */}
+          <rect x="180" y="95" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="180" y="135" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="180" y="175" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          <rect x="180" y="215" width="35" height="18" rx="1" stroke="#2563EB" strokeWidth="0.8"/>
+          {/* Crane arm */}
+          <path d="M150 20 L150 -20 L260 -20" stroke="#2563EB" strokeWidth="1" strokeLinecap="round"/>
+          <line x1="260" y1="-20" x2="260" y2="40" stroke="#2563EB" strokeWidth="0.8" strokeDasharray="2 3" strokeLinecap="round"/>
+          {/* Sketch cross-marks */}
+          <path d="M20 40 L30 50 M30 40 L20 50" stroke="#2563EB" strokeWidth="0.6" strokeLinecap="round" opacity="0.5"/>
+          <path d="M270 180 L280 190 M280 180 L270 190" stroke="#2563EB" strokeWidth="0.6" strokeLinecap="round" opacity="0.5"/>
+          {/* Foundation line */}
+          <line x1="40" y1="268" x2="260" y2="268" stroke="#2563EB" strokeWidth="0.6" strokeLinecap="round" strokeDasharray="8 4"/>
+        </svg>
+
+        {/* Sketch 2: Geometric growth / upward arrows — bottom left area */}
+        <svg className="absolute bottom-[15%] left-[5%] w-48 h-48 md:w-64 md:h-64 opacity-[0.05] pointer-events-none" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Upward growth arrows */}
+          <path d="M40 170 L40 60 L30 75" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M40 60 L50 75" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M90 170 L90 40 L78 58" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M90 40 L102 58" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M140 170 L140 20 L126 42" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M140 20 L154 42" stroke="#2563EB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          {/* Baseline */}
+          <line x1="20" y1="175" x2="180" y2="175" stroke="#2563EB" strokeWidth="1" strokeLinecap="round"/>
+          {/* Trend line connecting tops */}
+          <path d="M40 80 L90 60 L140 40" stroke="#2563EB" strokeWidth="1" strokeDasharray="3 3" strokeLinecap="round"/>
+          {/* Data dots at arrow tips */}
+          <circle cx="40" cy="60" r="3" stroke="#2563EB" strokeWidth="0.8" fill="none"/>
+          <circle cx="90" cy="40" r="3" stroke="#2563EB" strokeWidth="0.8" fill="none"/>
+          <circle cx="140" cy="20" r="3" stroke="#2563EB" strokeWidth="0.8" fill="none"/>
+        </svg>
+
+        {/* Sketch 3: Hand-drawn Africa outline — mid right */}
+        <svg className="absolute top-[40%] right-[3%] w-56 h-56 md:w-72 md:h-72 opacity-[0.05] pointer-events-none rotate-12" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Simplified Africa continent sketch outline */}
+          <path d="M100 10 L110 15 L125 12 L140 25 L145 40 L155 50 L160 70 L165 85 L158 100 L160 115 L152 130 L148 145 L138 155 L130 170 L120 180 L108 175 L100 185 L90 178 L80 170 L72 155 L65 140 L58 125 L55 105 L50 90 L55 75 L58 55 L65 40 L75 30 L85 22 L95 15 Z" stroke="#2563EB" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          {/* Nigeria marker */}
+          <circle cx="88" cy="65" r="5" stroke="#2563EB" strokeWidth="0.8" fill="none" strokeDasharray="2 2"/>
+          <circle cx="88" cy="65" r="2" fill="#2563EB"/>
+          {/* Construction dots scattered */}
+          <path d="M35 95 L40 100" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.4"/>
+          <path d="M165 105 L170 100" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.4"/>
+          {/* Compass rose suggestion */}
+          <path d="M175 30 L178 25 L181 30 L178 35 Z" stroke="#2563EB" strokeWidth="0.5" fill="none" strokeLinejoin="round" opacity="0.3"/>
+        </svg>
+
+        {/* Sketch 4: Blueprint circle / target — top left area */}
+        <svg className="absolute top-[12%] left-[3%] w-40 h-40 md:w-52 md:h-52 opacity-[0.04] pointer-events-none" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="80" cy="80" r="60" stroke="#2563EB" strokeWidth="0.8" strokeDasharray="3 4"/>
+          <circle cx="80" cy="80" r="40" stroke="#2563EB" strokeWidth="0.8"/>
+          <circle cx="80" cy="80" r="20" stroke="#2563EB" strokeWidth="0.8" strokeDasharray="2 3"/>
+          <line x1="80" y1="10" x2="80" y2="150" stroke="#2563EB" strokeWidth="0.6" strokeDasharray="4 6"/>
+          <line x1="10" y1="80" x2="150" y2="80" stroke="#2563EB" strokeWidth="0.6" strokeDasharray="4 6"/>
+          <circle cx="80" cy="80" r="4" stroke="#2563EB" strokeWidth="1" fill="none"/>
+          {/* Corner marks */}
+          <path d="M15 15 L25 15 M15 15 L15 25" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.5"/>
+          <path d="M145 15 L135 15 M145 15 L145 25" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.5"/>
+          <path d="M15 145 L25 145 M15 145 L15 135" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.5"/>
+          <path d="M145 145 L135 145 M145 145 L145 135" stroke="#2563EB" strokeWidth="0.5" strokeLinecap="round" opacity="0.5"/>
+        </svg>
+
+        {/* Sketch 5: Construction measurement marks — scattered small details */}
+        <svg className="absolute bottom-[30%] right-[25%] w-24 h-24 md:w-32 md:h-32 opacity-[0.06] pointer-events-none -rotate-12" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Ruler / measurement line */}
+          <line x1="10" y1="10" x2="90" y2="10" stroke="#2563EB" strokeWidth="1" strokeLinecap="round"/>
+          {/* Tick marks */}
+          <line x1="10" y1="10" x2="10" y2="20" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="30" y1="10" x2="30" y2="18" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="50" y1="10" x2="50" y2="20" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="70" y1="10" x2="70" y2="18" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="90" y1="10" x2="90" y2="20" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          {/* Vertical ruler */}
+          <line x1="10" y1="10" x2="10" y2="90" stroke="#2563EB" strokeWidth="1" strokeLinecap="round"/>
+          <line x1="10" y1="30" x2="18" y2="30" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="10" y1="50" x2="20" y2="50" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="10" y1="70" x2="18" y2="70" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          <line x1="10" y1="90" x2="20" y2="90" stroke="#2563EB" strokeWidth="0.8" strokeLinecap="round"/>
+          {/* Triangle / set square */}
+          <path d="M40 50 L70 50 L55 80 Z" stroke="#2563EB" strokeWidth="0.8" fill="none" strokeLinejoin="round"/>
+        </svg>
+
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
           className="relative z-10 max-w-7xl mx-auto px-6 py-24 w-full"

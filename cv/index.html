@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wole Ekanola - Technical Product & Engineering Leader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --accent-color: #2563eb;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            padding: 3rem;
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .profile-img {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-content h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .header-content h2 {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-bottom: 1.25rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 1.5rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .contact-info a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: color 0.2s;
+        }
+
+        .contact-info a:hover {
+            color: white;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 3rem;
+            padding: 3rem;
+        }
+
+        @media (max-width: 850px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem;
+            }
+            .contact-info {
+                justify-content: center;
+            }
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            list-style-position: outside;
+            margin-left: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .item {
+            margin-bottom: 2rem;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .item-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .item-company {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1rem;
+        }
+
+        .item-date {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .project-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .skills-category {
+            margin-bottom: 1.5rem;
+        }
+
+        .skills-category h4 {
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .badge-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .edu-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .edu-degree {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .edu-school {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header">
+        <img src="https://media.licdn.com/dms/image/v2/C4D03AQHXKNT-fZefAw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1660744834185?e=1779321600&v=beta&t=kR8olLy8tePpXp53SwbYjouh1ycKqxcJG1AyHHDc0Vg" alt="Wole Ekanola" class="profile-img">
+        <div class="header-content">
+            <h1>Wole Ekanola</h1>
+            <h2>Technical Product & Engineering Leader | AI Engineer</h2>
+            <div class="contact-info">
+                <span>📍 Lagos, Nigeria</span>
+                <a href="tel:08121751210">📞 08121751210</a>
+                <a href="mailto:woleekanola@gmail.com">✉️ woleekanola@gmail.com</a>
+                <a href="https://www.linkedin.com/in/woleekanola" target="_blank">🔗 linkedin.com/in/woleekanola</a>
+                <a href="https://github.com/woleEkanola" target="_blank">💻 github.com/woleEkanola</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <main>
+            <section class="section">
+                <h3 class="section-title">Professional Summary</h3>
+                <p>Technical Product and Engineering Leader with a proven track record of building, launching, and scaling technology-driven solutions across logistics, sales, and education platforms. Combines operational leadership with hands-on software development to enable rapid prototyping, workflow automation, and effective collaboration with engineering teams. Highly proficient in designing zero-API-cost infrastructures, orchestrating agentic LLM workflows, and translating business needs into scalable technical solutions. Passionate about building impactful products that solve real operational challenges and drive measurable business growth.</p>
+            </section>
+
+            <section class="section">
+                <h3 class="section-title">Professional Experience</h3>
+
+                <div class="item">
+                    <div class="item-header">
+                        <div>
+                            <span class="item-title">Technical Support Manager / Product Operations</span>
+                            <div class="item-company">Trade Depot</div>
+                        </div>
+                        <span class="item-date">Dec 2025 – Present</span>
+                    </div>
+                    <ul>
+                        <li>Lead the transition of a multi-app corporate technical support environment (integrating Console, Odoo, and Account Manager) to a fully agentic AI system to support Sales, Finance, and Logistics teams.</li>
+                        <li>Manage user support, technical troubleshooting, and training for custom-built ERP solutions, overseeing integrations with tools such as Odoo and Domo.</li>
+                        <li>Design and implement processes for logistics and sales operations, guiding technology integration and overseeing successful rollouts.</li>
+                    </ul>
+                </div>
+
+                <div class="item">
+                    <div class="item-header">
+                        <div>
+                            <span class="item-title">Logistics Manager & Systems Lead</span>
+                            <div class="item-company">Trade Depot</div>
+                        </div>
+                        <span class="item-date">Oct 2020 – Dec 2025</span>
+                    </div>
+                    <ul>
+                        <li>Led logistics operations, designing systems and processes that scaled operational growth, growing the team from handling a few orders daily to delivering thousands of orders across Lagos and its environments On-Time and In-Full.</li>
+                        <li>Built and managed internal technology products to support logistics operations using Retool, Glide, and Domo.</li>
+                        <li>Managed the rapid logistics system setup for the Accra, Ghana branch, and trained the launch support team for operations across Rivers, Edo, Kwara, and Oyo states.</li>
+                    </ul>
+                </div>
+
+                <div class="item">
+                    <div class="item-header">
+                        <div>
+                            <span class="item-title">Founder & Product Lead</span>
+                            <div class="item-company">Schoolwave.ng</div>
+                        </div>
+                        <span class="item-date">Nov 2023 – Present</span>
+                    </div>
+                    <ul>
+                        <li>Led product development from concept to adoption, launching the platform from MVP to a paying customer base within the Nigerian educational sector.</li>
+                        <li>Designed and engineered a premium, fintech-style administrative dashboard tailored to the operational needs of schools, driving user adoption and operational efficiency.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="section">
+                <h3 class="section-title">Selected Software & AI Projects</h3>
+                
+                <div class="project-card">
+                    <div class="item-title">AI & Social Commerce Platforms</div>
+                    <ul>
+                        <li><strong>Ziyora AI (Omnichannel AI Assistant):</strong> Architected an AI business assistant designed for social commerce SMEs. Integrated Meta Graph/Cloud APIs to automate engagement across WhatsApp, Instagram, and Facebook, utilizing an accessible, simplified logic framework to distill complex concepts for a general audience.</li>
+                        <li><strong>Eleto.online (AI Meeting Assistant — WIP):</strong> Building a privacy-focused AI tool designed to turn meetings into clear decisions. Engineering the system to record, understand, and organize conversations locally, featuring robust offline capabilities.</li>
+                        <li><strong>Microbuk (EdTech & Monetization — Early Access):</strong> Developed and launched a frictionless micro-learning platform currently supporting 300+ creators. Built a fully automated, keyword-based subscription architecture that allows creators to teach and monetize daily micro-lessons directly on WhatsApp with zero app downloads required.</li>
+                    </ul>
+                </div>
+
+                <div class="project-card">
+                    <div class="item-title">SaaS, ERP & Web Applications</div>
+                    <ul>
+                        <li><strong>Iwacumo.com (Full-Scale SaaS):</strong> Engineered and launched a comprehensive web application that manages end-to-end book publishing workflows, handling complex user journeys and content management.</li>
+                        <li><strong>Okoh International (ERP Architecture):</strong> Architected and delivered a custom, end-to-end ERP solution, streamlining complex operational data and automating internal business workflows.</li>
+                        <li><strong>Hitix.online (Transactional Platform):</strong> Developed a robust digital ticketing platform built to seamlessly process high-volume user transactions and manage event access.</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <aside>
+            <section class="section">
+                <h3 class="section-title">Core Competencies</h3>
+                
+                <div class="skills-category">
+                    <h4>AI Engineering & Architecture</h4>
+                    <div class="badge-container">
+                        <span class="badge">LLM Orchestration</span>
+                        <span class="badge">Ollama & Bifrost</span>
+                        <span class="badge">Agentic Systems</span>
+                        <span class="badge">Planner/Executor Patterns</span>
+                        <span class="badge">Llama / Qwen / GLM</span>
+                        <span class="badge">Cost Optimization</span>
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <h4>Full-Stack Engineering</h4>
+                    <div class="badge-container">
+                        <span class="badge">JavaScript / TypeScript</span>
+                        <span class="badge">Next.js</span>
+                        <span class="badge">React</span>
+                        <span class="badge">PostgreSQL</span>
+                        <span class="badge">Prisma</span>
+                        <span class="badge">SQL</span>
+                        <span class="badge">RESTful APIs</span>
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <h4>Product & Platforms</h4>
+                    <div class="badge-container">
+                        <span class="badge">Agile Development</span>
+                        <span class="badge">MVP Design</span>
+                        <span class="badge">ERP Integrations (Odoo)</span>
+                        <span class="badge">Retool</span>
+                        <span class="badge">n8n & Zapier</span>
+                        <span class="badge">Looker Studio / Domo</span>
+                    </div>
+                </div>
+
+                <div class="skills-category">
+                    <h4>Leadership & Operations</h4>
+                    <div class="badge-container">
+                        <span class="badge">Cross-Functional Leadership</span>
+                        <span class="badge">Process Optimization</span>
+                        <span class="badge">Data-Driven Logic</span>
+                        <span class="badge">A/B Testing</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <h3 class="section-title">Education</h3>
+                
+                <div class="edu-item">
+                    <div class="edu-degree">B.Sc. Data Science</div>
+                    <div class="edu-school">Miva Open University</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">(In Progress) Focus on AI, analytics, and intelligent product systems.</div>
+                </div>
+
+                <div class="edu-item">
+                    <div class="edu-degree">B.Sc. Biochemistry</div>
+                    <div class="edu-school">Olabisi Onabanjo University</div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Completed Coursework & Final Examinations</div>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+</body>
+</html>
