@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Welcome to the Class! Let's Setup OpenCode</title>
+    <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #818CF8;
+            --bg-color: #F3F4F6;
+            --text-color: #1F2937;
+            --light-text: #4B5563;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.8;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: var(--text-color);
+            border-bottom: 2px solid #E5E7EB;
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.5rem;
+        }
+        p {
+            font-size: 1.1rem;
+            color: var(--light-text);
+        }
+        .highlight-box {
+            background-color: #EEF2FF;
+            border-left: 5px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 25px 0;
+        }
+        .highlight-box h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        .step {
+            margin-bottom: 30px;
+        }
+        .step-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 15px 0;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #4338CA;
+        }
+        .prompt-box {
+            background-color: #1F2937;
+            color: #F3F4F6;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin: 15px 0;
+        }
+        .signature {
+            margin-top: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Welcome to How to Build with AI!</h1>
+        <p>I am thrilled to have you in this class. Before our first session, we need to set up the main tool we will be using to turn your ideas into reality. Don't worry if you have zero technical background—this guide is written exactly for you.</p>
+
+        <div class="highlight-box">
+            <h3>What is OpenCode?</h3>
+            <p>Imagine having a master software developer sitting inside your computer. You don't need to learn a programming language to talk to them; you just explain what you want in plain English. </p>
+            <p><strong>OpenCode</strong> is an AI-powered desktop application that does exactly this. It listens to your everyday language and writes the complicated computer code behind the scenes to build websites, apps, and tools for you. It takes away the heavy lifting so you can focus entirely on your creativity.</p>
+        </div>
+
+        <h2>Part 1: How to Install OpenCode</h2>
+        
+        <div class="step">
+            <div class="step-title">Step 1: Go to the website</div>
+            <p>Click the button below to open the official download page in a new tab:</p>
+            <a href="https://opencode.ai/download" target="_blank" class="btn">Go to OpenCode Downloads</a>
+        </div>
+
+        <div class="step">
+            <div class="step-title">Step 2: Choose the right version for your computer</div>
+            <p>Scroll down to the <strong>[2] OpenCode Desktop (Beta)</strong> section. You will see a few options. Click "Download" next to the one that matches your computer:</p>
+            <ul>
+                <li><strong>Using a Windows PC?</strong> Choose <strong>Windows (x64)</strong>.</li>
+                <li><strong>Using an older Mac?</strong> (Bought before late 2020) Choose <strong>macOS (Intel)</strong>.</li>
+                <li><strong>Using a newer Mac?</strong> (With an M1, M2, or M3 chip inside) Choose <strong>macOS (Apple Silicon)</strong>. 
+                <br><em>Tip: If you aren't sure, click the Apple logo in the top left corner of your screen, select "About This Mac", and look at the "Chip" or "Processor" line.</em></li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <div class="step-title">Step 3: Install the app</div>
+            <p>Once the file downloads, double-click it. Follow the normal steps you usually take to install a program on your computer (like clicking "Next" or dragging the icon to your Applications folder).</p>
+        </div>
+
+        <h2>Part 2: Your First AI Task!</h2>
+        <p>Let's make sure it works and show you how powerful this is. Open the OpenCode application you just installed on your computer and follow these simple steps:</p>
+
+        <div class="step">
+            <ol>
+                <li>Open the app. You should see a chat box, very similar to how you text a friend.</li>
+                <li>Copy the exact text in the dark box below and paste it into the OpenCode chat:</li>
+            </ol>
+            
+            <div class="prompt-box">
+                Build a simple, beautiful webpage. Make the background a soft blue color. In the center, put a large, friendly welcome message that says "I just built my first AI project!" Add a button below it that changes color when I hover my mouse over it.
+            </div>
+
+            <ol start="3">
+                <li>Press <strong>Enter</strong> to send the message.</li>
+                <li><strong>Watch the magic happen:</strong> OpenCode will start thinking and writing the code right in front of you. Once it finishes, it will usually provide a way to "Preview" or open what it just built. Click that preview button to see your very first AI-generated webpage!</li>
+            </ol>
+        </div>
+
+        <p>If you got it working, congratulations! You are officially an AI builder. If you got stuck on any step, don't panic. Bring your laptop to class a little early, and we will get you sorted out.</p>
+
+        <div class="signature">
+            See you in class,<br>
+            Wole Ekanola<br>
+            <span style="font-weight: normal; color: var(--light-text); font-size: 1rem;">Instructor, How to Build with AI</span>
+        </div>
+    </div>
+
+</body>
+</html>
