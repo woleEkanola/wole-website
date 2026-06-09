@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorszone — MVP Core Features, Key Decisions & Infrastructure</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --success: #16a34a;
+    --success-light: #dcfce7;
+    --warning: #d97706;
+    --warning-light: #fef3c7;
+    --danger: #dc2626;
+    --danger-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--surface); color: var(--text); line-height: 1.6; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 280px; background: #0f172a; color: #e2e8f0; padding: 1.5rem 0;
+    position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
+  }
+  .sidebar h2 { font-size: 1.1rem; padding: 0 1.25rem; margin-bottom: 0.25rem; color: #fff; }
+  .sidebar .subtitle { font-size: 0.75rem; padding: 0 1.25rem 1rem; color: #94a3b8; border-bottom: 1px solid #1e293b; margin-bottom: 0.75rem; }
+  .sidebar .nav-group { margin-bottom: 0.5rem; }
+  .sidebar .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; padding: 0.5rem 1.25rem 0.25rem; font-weight: 700; }
+  .sidebar a { display: block; padding: 0.35rem 1.25rem; color: #cbd5e1; text-decoration: none; font-size: 0.82rem; transition: all 0.15s; border-left: 3px solid transparent; }
+  .sidebar a:hover { background: #1e293b; color: #fff; border-left-color: var(--primary); }
+  .main { margin-left: 280px; padding: 2.5rem 3rem; max-width: 1100px; }
+
+  h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
+  h1 span { color: var(--primary); }
+  .page-desc { font-size: 1rem; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 700px; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); color: var(--text); }
+  h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--text); }
+  h4 { font-size: 0.95rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  p { margin-bottom: 0.75rem; font-size: 0.92rem; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; font-size: 0.9rem; }
+  li { margin-bottom: 0.35rem; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .card-number {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 1.1rem; color: #fff; flex-shrink: 0;
+  }
+  .card-title { font-size: 1.15rem; font-weight: 700; }
+  .card-subtitle { font-size: 0.8rem; color: var(--text-muted); }
+
+  .c0 .card-number { background: #0891b2; }
+  .c1 .card-number { background: #2563eb; }
+  .c2 .card-number { background: #7c3aed; }
+  .c3 .card-number { background: #059669; }
+  .c4 .card-number { background: #d97706; }
+  .c5 .card-number { background: #dc2626; }
+
+  .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+  .badge.mvp { background: var(--success-light); color: var(--success); }
+  .badge.decided { background: var(--primary-light); color: var(--primary); }
+  .badge.pending { background: var(--warning-light); color: var(--warning); }
+  .badge.critical { background: var(--danger-light); color: var(--danger); }
+  .badge.rec { background: var(--purple-light); color: var(--purple); }
+
+  .table-wrap { overflow-x: auto; margin: 1rem 0; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th { background: #f1f5f9; font-weight: 600; text-align: left; padding: 0.65rem 0.85rem; border-bottom: 2px solid var(--border); white-space: nowrap; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+  tbody td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+  .feature-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.75rem 1rem; font-size: 0.85rem;
+  }
+  .feature-item strong { display: block; font-size: 0.8rem; color: var(--primary); margin-bottom: 0.2rem; }
+
+  .decision-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; border-left: 4px solid var(--primary);
+  }
+  .decision-card.critical-decision { border-left-color: var(--danger); }
+  .decision-card h3 { margin-top: 0; font-size: 1.05rem; }
+  .decision-meta { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+  .options-list { margin: 0.75rem 0; }
+  .option {
+    display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.5rem 0.75rem;
+    background: var(--surface); border-radius: 6px; margin-bottom: 0.4rem; font-size: 0.85rem;
+  }
+  .option.recommended { background: var(--success-light); border: 1px solid #bbf7d0; }
+  .option .opt-label { font-weight: 700; min-width: 80px; flex-shrink: 0; }
+  .recommendation {
+    background: var(--success-light); border: 1px solid #bbf7d0; border-radius: 8px;
+    padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.85rem;
+  }
+  .recommendation strong { color: var(--success); }
+
+  .infra-diagram {
+    background: #f8fafc; border: 2px solid var(--border); border-radius: 12px;
+    padding: 2rem; margin: 1.5rem 0; font-family: var(--mono); font-size: 0.78rem;
+    line-height: 1.6; overflow-x: auto; white-space: pre; color: var(--text);
+  }
+
+  .cost-total {
+    background: var(--primary-light); border: 2px solid var(--primary); border-radius: 10px;
+    padding: 1.25rem 1.5rem; margin: 1.5rem 0; display: flex; justify-content: space-between;
+    align-items: center;
+  }
+  .cost-total .label { font-size: 1rem; font-weight: 700; color: var(--primary); }
+  .cost-total .amount { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+
+  .flow {
+    display: flex; align-items: center; gap: 0; margin: 1rem 0; flex-wrap: wrap;
+  }
+  .flow-step {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.6rem 1rem; font-size: 0.8rem; font-weight: 500; text-align: center;
+    min-width: 120px;
+  }
+  .flow-arrow { font-size: 1.2rem; color: var(--text-muted); padding: 0 0.25rem; }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 1.5rem; }
+    .feature-grid { grid-template-columns: 1fr; }
+  }
+
+  .section-divider {
+    height: 4px; background: linear-gradient(90deg, var(--primary), var(--purple), var(--success));
+    border-radius: 2px; margin: 3rem 0;
+  }
+
+  .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0; }
+  .metric-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.25rem; text-align: center;
+  }
+  .metric-value { font-size: 1.75rem; font-weight: 800; color: var(--primary); }
+  .metric-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  code { background: #f1f5f9; color: #1e293b; padding: 0.1rem 0.35rem; border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; }
+  pre { background: #1e293b; color: #f8fafc; padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: var(--mono); font-size: 0.8rem; line-height: 1.5; margin: 1rem 0; }
+
+  .switch-diagram {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;
+    margin: 1.5rem 0; padding: 1.5rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border);
+  }
+  .switch-box {
+    background: var(--card); border: 2px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.25rem; text-align: center;
+  }
+  .switch-box.active { border-color: var(--primary); background: var(--primary-light); }
+  .switch-box h4 { margin: 0 0 0.5rem; font-size: 0.9rem; text-transform: none; letter-spacing: 0; color: var(--text); }
+  .switch-box ul { list-style: none; margin: 0; padding: 0; font-size: 0.8rem; text-align: left; }
+  .switch-box ul li { padding: 0.2rem 0; }
+  .switch-box ul li::before { content: "✓ "; color: var(--success); font-weight: 700; }
+  .switch-middle { text-align: center; font-size: 0.8rem; color: var(--text-muted); }
+  .switch-middle .arrow { font-size: 1.5rem; display: block; margin: 0.25rem 0; color: var(--primary); }
+
+  /* ─── Lock Screen ─── */
+  #lock-screen {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  #lock-screen.hidden { display: none; }
+  .lock-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+    padding: 3rem 2.5rem; text-align: center; max-width: 480px; width: 90%;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .lock-logo {
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #60a5fa; margin-bottom: 0.5rem;
+  }
+  .lock-title {
+    font-size: 1.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; line-height: 1.3;
+  }
+  .lock-subtitle {
+    font-size: 0.9rem; color: #94a3b8; margin-bottom: 2rem; line-height: 1.5;
+  }
+  .lock-input-group { margin-bottom: 1.25rem; }
+  .lock-input-group input {
+    width: 100%; padding: 0.85rem 1rem; border: 2px solid #334155; border-radius: 10px;
+    background: #0f172a; color: #f8fafc; font-size: 1rem; text-align: center;
+    letter-spacing: 0.1em; outline: none; transition: border-color 0.2s;
+  }
+  .lock-input-group input:focus { border-color: #60a5fa; }
+  .lock-input-group input::placeholder { color: #475569; letter-spacing: 0.05em; }
+  .lock-btn {
+    width: 100%; padding: 0.85rem; border: none; border-radius: 10px;
+    background: #2563eb; color: #fff; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .lock-btn:hover { background: #1d4ed8; }
+  .lock-error {
+    color: #f87171; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.25rem;
+  }
+  .lock-confidential {
+    margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #334155;
+    font-size: 0.75rem; color: #64748b; line-height: 1.5;
+  }
+  .lock-confidential strong { color: #f87171; }
+  #doc-content { display: none; }
+  #doc-content.visible { display: block; }
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOCK SCREEN ═══════════════ -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo">Caltech Innovations</div>
+    <div class="lock-title">Implementation Plan for Tutorszone Platform</div>
+    <div class="lock-subtitle">This document is confidential and intended solely for the named recipient. Unauthorized sharing with third parties is strictly prohibited.</div>
+    <div class="lock-input-group">
+      <input type="password" id="doc-password" placeholder="Enter access password" autocomplete="off">
+    </div>
+    <button class="lock-btn" id="unlock-btn" onclick="checkPassword()">Access Document</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-confidential">
+      <strong>CONFIDENTIAL</strong><br>
+      Prepared by Caltech Innovations. This document contains proprietary information and may not be shared, reproduced, or distributed to any third party without written consent from Caltech Innovations.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DOCUMENT CONTENT ═══════════════ -->
+<div id="doc-content">
+
+<div class="layout">
+
+<nav class="sidebar">
+  <h2 style="color: #60a5fa;">Caltech Innovations</h2>
+  <p class="subtitle" style="border-bottom-color: #334155;">Implementation Plan — Tutorszone Platform<br><span style="color: #f87171; font-weight: 600;">CONFIDENTIAL</span></p>
+
+  <div class="nav-group">
+    <div class="nav-label">Overview</div>
+    <a href="#overview">At a Glance</a>
+    <a href="#metrics">Key Metrics</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Core Features</div>
+    <a href="#f0">0. Teacher Onboarding & Dashboard</a>
+    <a href="#f1">1. Parent Registration</a>
+    <a href="#f2">2. Live Classroom</a>
+    <a href="#f3">3. Masked Calling</a>
+    <a href="#f4">4. Scheduling System</a>
+    <a href="#f5">5. Tutor Screen Monitoring</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Key Decisions</div>
+    <a href="#decisions">Decision Matrix</a>
+    <a href="#d1">LiveKit: Self-Hosted vs Cloud</a>
+    <a href="#d2">Screen Monitoring</a>
+    <a href="#d3">WhatsApp Channel</a>
+    <a href="#d4">Masked Calling Provider</a>
+    <a href="#d5">Student Age Range</a>
+    <a href="#d6">Tech Stack</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Infrastructure</div>
+    <a href="#infra">Architecture</a>
+    <a href="#livekit-switch">LiveKit Switching</a>
+    <a href="#stack">Server Stack</a>
+    <a href="#costs">Cost Breakdown</a>
+    <a href="#cost-timeline">Development Cost & Timeline</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<h1 id="overview">Tutorszone <span>MVP</span></h1>
+<p class="page-desc">
+  The 6 core features for MVP, key architectural decisions, and the infrastructure stack — designed to switch between self-hosted LiveKit and LiveKit Cloud.
+</p>
+
+<div class="metrics-row" id="metrics">
+  <div class="metric-card">
+    <div class="metric-value">6</div>
+    <div class="metric-label">Core Features</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">$30–99</div>
+    <div class="metric-label">Monthly Infra (Self-Hosted)</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-value">$0–50</div>
+    <div class="metric-label">Monthly Infra (LiveKit Cloud)</div>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                   CORE FEATURES                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2>Core Features</h2>
+<p>These are the minimum features required for Tutorszone to operate as a platform. Billing and payments are excluded from MVP — handled manually via bank transfer and Paystack dashboard for now.</p>
+
+<!-- ─── FEATURE 0: TEACHER ONBOARDING ─── -->
+<div class="card c0" id="f0">
+  <div class="card-header">
+    <div class="card-number">0</div>
+    <div>
+      <div class="card-title">Teacher Self-Onboarding & Dashboard</div>
+      <div class="card-subtitle">Staff-created account → profile setup → availability → earnings view → teaching tools</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Admin creates teacher accounts with role assignment. Teachers then complete their own profile (subjects, bio, qualifications), set their availability, and access their teaching dashboard — showing today's classes, upcoming schedule, student profiles, earnings, and tools for lesson notes and masked calling.</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Admin-Created Account</strong>
+      Super Admin or HR creates teacher account with email, role assignment, and temporary password. Welcome email sent with login instructions.
+    </div>
+    <div class="feature-item">
+      <strong>Profile Completion</strong>
+      Teacher completes their profile: subjects taught, grade levels, bio, qualifications upload, profile photo, timezone.
+    </div>
+    <div class="feature-item">
+      <strong>Availability Management</strong>
+      Teacher sets their available time slots per day/week. System auto-blocks confirmed bookings. Syncs with scheduling engine.
+    </div>
+    <div class="feature-item">
+      <strong>Today's Classes</strong>
+      Dashboard shows today's sessions with: subject, student name(s), time, duration, join class button. Active 10 min before start.
+    </div>
+    <div class="feature-item">
+      <strong>Upcoming Schedule</strong>
+      Daily, weekly, monthly view of all assigned sessions. Timezone-aware (shows student's timezone alongside teacher's local time).
+    </div>
+    <div class="feature-item">
+      <strong>Student Profiles</strong>
+      View assigned students only: name, grade, subjects, progress notes. Cannot access other tutors' students.
+    </div>
+    <div class="feature-item">
+      <strong>Earnings Wallet</strong>
+      Real-time earnings view: total accrued from verified sessions, session breakdown (date, student, subject, duration, status), payment history.
+    </div>
+    <div class="feature-item">
+      <strong>Lesson Note Submission</strong>
+      After each session, teacher submits lesson notes: topics covered, student performance, homework assigned, next session focus. Visible to parent and LES.
+    </div>
+    <div class="feature-item">
+      <strong>Reschedule Requests</strong>
+      Teacher can request reschedule for upcoming classes. Select alternative slot (shows availability), provide reason. Sent to Operations for approval.
+    </div>
+    <div class="feature-item">
+      <strong>Performance Indicators</strong>
+      Red/amber/green indicators based on attendance, punctuality, parent ratings, and lesson note completion.
+    </div>
+  </div>
+
+  <h4>Teacher Dashboard Layout</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Section</th><th>Widgets</th><th>Access</th></tr></thead>
+      <tbody>
+        <tr><td>Today's Classes</td><td>Session cards with join button, student names, time, subject</td><td>Teacher only</td></tr>
+        <tr><td>Upcoming Schedule</td><td>Calendar view (daily/weekly/monthly), timezone display</td><td>Teacher only</td></tr>
+        <tr><td>Student Profiles</td><td>Assigned students list, progress notes, contact (masked call button)</td><td>Teacher only (assigned students)</td></tr>
+        <tr><td>Earnings</td><td>Wallet balance, session log, payment history, CSV export</td><td>Teacher only (own earnings)</td></tr>
+        <tr><td>Lesson Notes</td><td>Outstanding notes count, submission form, history</td><td>Teacher only</td></tr>
+        <tr><td>Reschedule</td><td>Request form, status tracking (pending/approved/rejected)</td><td>Teacher only</td></tr>
+        <tr><td>Performance</td><td>Red/amber/green indicators, attendance rate, rating average</td><td>Teacher only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-TO-01</td><td>Admin creates teacher account with role assignment and welcome email</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-02</td><td>Teacher completes profile: subjects, grades, bio, qualifications, photo, timezone</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-03</td><td>Teacher sets availability (time slots per day/week)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-04</td><td>Dashboard shows today's classes with join button (active 10 min before)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-05</td><td>Upcoming schedule view (daily/weekly/monthly, timezone-aware)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-06</td><td>Student profiles (assigned students only: name, grade, subjects, progress)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-07</td><td>Earnings wallet: balance, session log, payment history, CSV export</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-08</td><td>Lesson note submission (topics, performance, homework, next focus)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-09</td><td>Reschedule request workflow (select slot, reason, approval by Operations)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-10</td><td>Performance indicators (red/amber/green) for attendance, ratings, punctuality</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 1: PARENT REGISTRATION ─── -->
+<div class="card c1" id="f1">
+  <div class="card-header">
+    <div class="card-number">1</div>
+    <div>
+      <div class="card-title">Parent Self-Registration & Onboarding</div>
+      <div class="card-subtitle">Public signup → pricing selection → student account creation → welcome email</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Replaces WhatsApp-based onboarding with self-service flow. Parents land on a public page, see pricing plans, register themselves and their children, and receive login credentials — all without staff intervention. Payment setup is deferred to post-MVP (manual bank transfer for now).</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Public Landing Page</strong>
+      Pricing plans displayed clearly: hourly, per-class, package deals, custom quote request. No payment integration in MVP.
+    </div>
+    <div class="feature-item">
+      <strong>Registration Form</strong>
+      Parent info (name, email, phone, country) + child info (name, age, grade, subjects) + communication preferences.
+    </div>
+    <div class="feature-item">
+      <strong>Pricing Selection</strong>
+      Parent selects a plan during signup. Custom quote flow: submit request → Super Admin creates proposal → parent accepts.
+    </div>
+    <div class="feature-item">
+      <strong>Auto Student Account</strong>
+      Student account automatically created when parent registers a child. Linked accounts from day one.
+    </div>
+    <div class="feature-item">
+      <strong>Multi-Child Support</strong>
+      One parent account can manage multiple children, each with their own schedule, progress, and attendance.
+    </div>
+    <div class="feature-item">
+      <strong>Welcome Email</strong>
+      Automated email with login credentials, platform orientation, and next steps.
+    </div>
+    <div class="feature-item">
+      <strong>Communication Prefs</strong>
+      Parent opts in/out of WhatsApp, SMS, and email notifications during registration.
+    </div>
+    <div class="feature-item">
+      <strong>Parent Dashboard</strong>
+      Upcoming classes, attendance history, child progress reports, invoices (view only in MVP), communication hub.
+    </div>
+  </div>
+
+  <h4>User Flow</h4>
+  <div class="flow">
+    <div class="flow-step">Landing Page<br><small>See pricing</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Register<br><small>Parent + child</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Select Plan<br><small>Hourly/package</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Student Created<br><small>Auto-linked</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Welcome<br><small>Credentials sent</small></div>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-REG-01</td><td>Public landing page showing all pricing plans</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-02</td><td>Registration form: parent + child details + communication preferences</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-03</td><td>Pricing plan selection during registration</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-04</td><td>Custom quote request workflow</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-05</td><td>Automatic student account creation on parent registration</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-06</td><td>Welcome email with credentials and orientation</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-07</td><td>Multi-child support under one parent account</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-REG-08</td><td>Parent dashboard: upcoming classes, attendance, progress, communication</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 2: LIVE CLASSROOM ─── -->
+<div class="card c2" id="f2">
+  <div class="card-header">
+    <div class="card-number">2</div>
+    <div>
+      <div class="card-title">Live Classroom (Built-In)</div>
+      <div class="card-subtitle">LiveKit (self-hosted or cloud) → embedded video → screen share → silent observer → attendance</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Embedded live video classroom powered by LiveKit. Supports switching between self-hosted LiveKit (Apache 2.0) and LiveKit Cloud via configuration. Supports 1-on-1 and group sessions with screen sharing, chat, mute/hand-raise, and silent observer mode for the Learning Experience Specialist (QA). Attendance tracked automatically via LiveKit's participant events API.</p>
+
+  <h4>LiveKit: Self-Hosted vs Cloud</h4>
+  <div class="switch-diagram">
+    <div class="switch-box">
+      <h4>Self-Hosted LiveKit</h4>
+      <ul>
+        <li>You deploy the SFU server</li>
+        <li>You manage coturn (TURN/STUN)</li>
+        <li>Full control over infrastructure</li>
+        <li>Cost: $12–18/month (server)</li>
+        <li>Best for: full control, no per-minute fees</li>
+      </ul>
+    </div>
+    <div class="switch-middle">
+      <span class="arrow">⇄</span>
+      <strong>Switch via config</strong><br>
+      Environment variable
+    </div>
+    <div class="switch-box">
+      <h4>LiveKit Cloud</h4>
+      <ul>
+        <li>LiveKit manages the SFU</li>
+        <li>No server to maintain</li>
+        <li>Auto-scaling, global CDN</li>
+        <li>Cost: $0.002/min (free tier: 50 hrs/mo)</li>
+        <li>Best for: fast launch, no ops burden</li>
+      </ul>
+    </div>
+  </div>
+
+  <p><strong>Frontend code is identical in both cases.</strong> The LiveKit React SDK connects to whichever server URL and API key you configure. The only difference is infrastructure management.</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Embedded Video</strong>
+      LiveKit rooms embedded directly in the platform via React SDK. No external app download needed.
+    </div>
+    <div class="feature-item">
+      <strong>Screen Sharing</strong>
+      Tutor shares their screen for teaching. Students view in real-time.
+    </div>
+    <div class="feature-item">
+      <strong>Silent Observer</strong>
+      LES joins any live class without being visible to tutor or students. Can observe and take notes.
+    </div>
+    <div class="feature-item">
+      <strong>Auto Attendance</strong>
+      LiveKit webhooks fire on participant join/leave. System logs timestamps automatically.
+    </div>
+    <div class="feature-item">
+      <strong>Chat</strong>
+      In-session text chat between tutor and students.
+    </div>
+    <div class="feature-item">
+      <strong>Mute / Hand Raise</strong>
+      Students can mute/unmute and raise hand during class.
+    </div>
+    <div class="feature-item">
+      <strong>Join via Link</strong>
+      Students/parents join class via a link from their dashboard. Active 10 min before start.
+    </div>
+    <div class="feature-item">
+      <strong>No Video Recording</strong>
+      Sessions are NOT recorded. Screenshots captured every 10 min instead (see Feature 5).
+    </div>
+  </div>
+
+  <h4>Attendance Tracking Flow</h4>
+  <div class="flow">
+    <div class="flow-step">Tutor Joins<br><small>LiveKit webhook</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Student Joins<br><small>LiveKit webhook</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Timestamps<br><small>Logged to DB</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Late Detection<br><small>If >5 min late</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">No-Show<br><small>If >15 min absent</small></div>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-LC-01</td><td>Embedded video via LiveKit (self-hosted or cloud, switchable)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-02</td><td>Screen sharing (tutor shares, students view)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-03</td><td>1-on-1 and group session support (max 6 students)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-04</td><td>Silent observer mode for LES (invisible join)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-05</td><td>Automatic attendance via LiveKit join/leave webhooks</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-06</td><td>Chat functionality during live class</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-07</td><td>Mute/unmute and hand-raise for students</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-08</td><td>Join via link from dashboard (active 10 min before)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-09</td><td>Late arrival tracking with timestamp</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-10</td><td>Configuration-based switching between self-hosted and cloud</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 3: MASKED CALLING ─── -->
+<div class="card c3" id="f3">
+  <div class="card-header">
+    <div class="card-number">3</div>
+    <div>
+      <div class="card-title">Masked Calling with Recording</div>
+      <div class="card-subtitle">Teacher initiates call → number masked → audio recorded → deleted after 7 days</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Teachers can initiate a one-click phone call to a parent directly from their dashboard without seeing the parent's phone number. The parent's caller ID shows a Tutorszone number. All calls are automatically recorded (audio only) and stored securely. Recordings are accessible only to LES and Super Admin for quality assurance. All recordings are deleted after 7 days.</p>
+
+  <h4>Use Case: Late to Class</h4>
+  <p>When a parent or teacher is late to a scheduled class, the party who is present can click a button to trigger a voice call to the other party. This call is recorded for QA review. This is the primary use case for masked calling in MVP.</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>One-Click Call Initiation</strong>
+      Teacher clicks "Call Parent" button on student profile card. System initiates call via Twilio Proxy.
+    </div>
+    <div class="feature-item">
+      <strong>Number Masking</strong>
+      Teacher never sees parent's phone number. Parent sees Tutorszone number (not teacher's personal number).
+    </div>
+    <div class="feature-item">
+      <strong>Auto Recording</strong>
+      All calls automatically recorded server-side via Twilio. Audio only (no video).
+    </div>
+    <div class="feature-item">
+      <strong>Secure Storage</strong>
+      Recordings stored locally on app server. Accessible only to LES and Super Admin.
+    </div>
+    <div class="feature-item">
+      <strong>7-Day Retention</strong>
+      All recordings automatically deleted after 7 days. Cron job handles cleanup.
+    </div>
+    <div class="feature-item">
+      <strong>Call Log</strong>
+      Teacher sees call history: date, time, duration only (no phone number). LES/Super Admin see full log with recording link.
+    </div>
+    <div class="feature-item">
+      <strong>QA Review</strong>
+      LES can playback recordings, rate call quality (professionalism, clarity, outcome), and flag for coaching.
+    </div>
+    <div class="feature-item">
+      <strong>Opt-Out Support</strong>
+      If parent has opted out of calls, the "Call Parent" button is disabled on teacher dashboard.
+    </div>
+  </div>
+
+  <h4>Masked Call Flow</h4>
+  <div class="flow">
+    <div class="flow-step">Teacher Clicks<br><small>"Call Parent"</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Twilio Proxy<br><small>Masks numbers</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Call Connected<br><small>Audio recorded</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Recording Saved<br><small>Local storage</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Auto-Delete<br><small>After 7 days</small></div>
+  </div>
+<h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-MC-01</td><td>Teacher initiates one-click call to parent from dashboard</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-02</td><td>Teacher never sees parent's phone number (masked)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-03</td><td>Parent's caller ID shows Tutorszone number</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-04</td><td>All calls automatically recorded (audio only) server-side</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-05</td><td>Recordings stored securely, accessible only to LES and Super Admin</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-06</td><td>All recordings deleted after 7 days (automated cron job)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-07</td><td>Teacher sees call history: date, time, duration only (no number)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-08</td><td>LES/Super Admin see full call log with recording link</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-09</td><td>LES can playback recordings and rate call quality</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-MC-10</td><td>Call button disabled if parent opted out of calls</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 4: SCHEDULING ─── -->
+<div class="card c4" id="f4">
+  <div class="card-header">
+    <div class="card-number">4</div>
+    <div>
+      <div class="card-title">Timezone-Aware Scheduling System</div>
+      <div class="card-subtitle">Availability management → session booking → conflict detection → automated reminders</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Replaces WhatsApp-based scheduling with a proper scheduling engine that handles 6+ time zones (USA, Canada, UK, UAE, South Africa, Nigeria), tutor availability, recurring sessions, conflict detection, and automated reminders via email, SMS, and WhatsApp.</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Timezone Engine</strong>
+      All times stored in UTC, displayed in each user's local timezone. Scheduler sees student's timezone alongside their own.
+    </div>
+    <div class="feature-item">
+      <strong>Tutor Availability</strong>
+      Tutors set their available time slots per day/week. System auto-blocks confirmed bookings.
+    </div>
+    <div class="feature-item">
+      <strong>Session Management</strong>
+      Create, modify, cancel sessions. Each session has: tutor, student(s), subject, date/time, duration, recurrence.
+    </div>
+    <div class="feature-item">
+      <strong>Conflict Detection</strong>
+      Real-time alerts when a tutor or student is double-booked. Prevents scheduling conflicts before they happen.
+    </div>
+    <div class="feature-item">
+      <strong>Recurring Sessions</strong>
+      Weekly/monthly recurring schedule support (same time, same tutor, same subject each week).
+    </div>
+    <div class="feature-item">
+      <strong>Automated Reminders</strong>
+      Email, SMS, and WhatsApp reminders sent 15 minutes before each class to both tutor and parent.
+    </div>
+    <div class="feature-item">
+      <strong>Reschedule Workflow</strong>
+      Teacher or parent requests reschedule → Operations approves → conflict check → all parties notified.
+    </div>
+    <div class="feature-item">
+      <strong>No-Show Management</strong>
+      Auto-detect when tutor or student doesn't join within X minutes. Mark as no-show, trigger makeup workflow.
+    </div>
+  </div>
+
+  <h4>User Flow — Operations Scheduler</h4>
+  <div class="flow">
+    <div class="flow-step">View Availability<br><small>Tutor slots</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Create Session<br><small>Assign tutor+student</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Conflict Check<br><small>Auto-detect</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Confirm<br><small>Notify all parties</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Reminders<br><small>15 min before</small></div>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-SCH-01</td><td>Timezone-aware scheduling for USA, Canada, UK, UAE, SA, Nigeria</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-02</td><td>Tutor availability management (set available slots)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-03</td><td>Session CRUD with tutor, student(s), subject, time, duration</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-04</td><td>Conflict detection (double-booking prevention)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-05</td><td>Recurring schedule support (weekly/monthly)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-06</td><td>Automated reminders via email, SMS, WhatsApp (15 min before)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-07</td><td>Reschedule workflow with approval and conflict check</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-08</td><td>No-show/missed class detection and management</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-09</td><td>Emergency substitution workflow (swap tutors)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-10</td><td>Scheduling audit log (who created/modified/cancelled)</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 5: SCREEN MONITORING ─── -->
+<div class="card c5" id="f5">
+  <div class="card-header">
+    <div class="card-number">5</div>
+    <div>
+      <div class="card-title">Tutor Screen Monitoring</div>
+      <div class="card-subtitle">Auto-screenshot every 10 min → timeline view for LES → deleted after 7 days</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>During live classes, the platform automatically captures screenshots of the tutor's shared screen at configurable intervals (default: every 10 minutes). Screenshots are stored securely and accessible only to LES and Super Admin for quality assurance review. LES can review screenshots in a timeline view per session. All screenshots are deleted after 7 days.</p>
+
+  <h4>How It Works</h4>
+  <p>Screenshots capture the tutor's <strong>shared screen</strong> (what students see), not their full desktop. This is done by subscribing to the tutor's screen share track via LiveKit's API and extracting frames. Lightweight, no extra infrastructure needed.</p>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Auto-Capture</strong>
+      Backend worker captures screenshot every 10 minutes during active sessions. Configurable interval by Super Admin.
+    </div>
+    <div class="feature-item">
+      <strong>Shared Screen Only</strong>
+      Captures the tutor's shared screen (teaching content), not their full desktop. Less invasive, more relevant for QA.
+    </div>
+    <div class="feature-item">
+      <strong>Secure Storage</strong>
+      Screenshots stored locally on app server. Access limited to LES and Super Admin only.
+    </div>
+    <div class="feature-item">
+      <strong>Timeline View</strong>
+      LES can review screenshots in a timeline view per session, per tutor. Thumbnails with timestamps.
+    </div>
+    <div class="feature-item">
+      <strong>7-Day Retention</strong>
+      All screenshots automatically deleted after 7 days. Cron job handles cleanup.
+    </div>
+    <div class="feature-item">
+      <strong>QA Review</strong>
+      LES uses screenshots to verify: lighting, background, uniform, professionalism, teaching content.
+    </div>
+    <div class="feature-item">
+      <strong>Configurable Frequency</strong>
+      Super Admin can configure screenshot interval (e.g., every 5, 10, 15 minutes).
+    </div>
+    <div class="feature-item">
+      <strong>Transparency Notice</strong>
+      Tutors are notified that screen monitoring is active during sessions (shown in classroom UI).
+    </div>
+  </div>
+
+  <h4>Screenshot Capture Flow</h4>
+  <div class="flow">
+    <div class="flow-step">Session Starts<br><small>LiveKit room active</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Worker Triggered<br><small>Every 10 min</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Subscribe to Track<br><small>Tutor screen share</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Capture Frame<br><small>Save as JPEG</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Auto-Delete<br><small>After 7 days</small></div>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-SM-01</td><td>Auto-capture screenshots of tutor's shared screen every 10 min (configurable)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-02</td><td>Screenshots stored securely, accessible only to LES and Super Admin</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-03</td><td>LES can review screenshots in timeline view per session, per tutor</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-04</td><td>All screenshots deleted after 7 days (automated cron job)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-05</td><td>Super Admin can configure screenshot frequency</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-06</td><td>Tutors notified that monitoring is active during sessions</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-07</td><td>Screenshots used to verify: lighting, background, uniform, professionalism, content</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-08</td><td>Timeline view shows thumbnails with timestamps for easy navigation</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                   KEY DECISIONS                         -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="decisions">Key Decisions</h2>
+<p>These decisions must be made before engineering starts. Each one blocks or shapes a significant portion of the architecture.</p>
+
+<!-- Decision 1 -->
+<div class="decision-card critical-decision" id="d1">
+  <h3>1. LiveKit: Self-Hosted vs Cloud</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge decided">DECIDED</span>
+  </div>
+  <p>The platform must support switching between self-hosted LiveKit and LiveKit Cloud via configuration. Both use the same LiveKit SDK on the frontend — only the server URL and API key change.</p>
+  
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Factor</th><th>Self-Hosted</th><th>LiveKit Cloud</th></tr></thead>
+      <tbody>
+        <tr><td>Infrastructure</td><td>You deploy and manage the SFU server</td><td>LiveKit manages everything</td></tr>
+        <tr><td>Cost</td><td>$12–18/month (server) + bandwidth</td><td>$0.002/min (free tier: 50 hrs/mo)</td></tr>
+        <tr><td>Ops Burden</td><td>Medium (Docker, coturn, monitoring)</td><td>None (fully managed)</td></tr>
+        <tr><td>Control</td><td>Full control over infrastructure</td><td>Limited to LiveKit's platform</td></tr>
+        <tr><td>Scaling</td><td>You manage scaling (vertical/horizontal)</td><td>Auto-scaling, global CDN</td></tr>
+        <tr><td>Best For</td><td>Long-term cost savings, full control</td><td>Fast launch, no ops burden</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="recommendation"><strong>Decision: Support both via configuration.</strong> Start with LiveKit Cloud for MVP (fastest to launch, no ops burden). Migrate to self-hosted in V2 once the platform is stable and you want to reduce per-minute costs at scale. The frontend code is identical — only the config changes.</div>
+</div>
+
+<!-- Decision 2 -->
+<div class="decision-card" id="d2">
+  <h3>2. Screen Monitoring Approach</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge decided">DECIDED</span>
+  </div>
+  <p>Screenshots every 10 minutes during live sessions. Deleted after 7 days. Captures the tutor's <strong>shared screen</strong> (what students see), not their full desktop.</p>
+  <div class="options-list">
+    <div class="option recommended"><span class="opt-label">Shared screen ✅</span> Capture the tutor's shared screen via LiveKit's track subscription. Lightweight. Only captures what students see.</div>
+    <div class="option"><span class="opt-label">Full desktop</span> Headless browser joins session, captures full video frame. Heavier. Captures tutor's video feed, not their actual desktop.</div>
+    <div class="option"><span class="opt-label">Browser extension</span> Tutor installs extension that captures their screen. Most invasive. Requires tutor cooperation.</div>
+  </div>
+  <div class="recommendation"><strong>Decision: Shared screen capture via LiveKit track subscription.</strong> Captures what students see (the teaching content). Lightweight, no extra infrastructure. If full desktop monitoring is needed later, add Puppeteer-based capture in V2.</div>
+</div>
+
+<!-- Decision 3 -->
+<div class="decision-card" id="d3">
+  <h3>3. WhatsApp Notification Channel</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge pending">PENDING</span>
+  </div>
+  <p>WhatsApp is required for class reminders (15 min before), schedule changes, and notifications. How do we integrate?</p>
+  <div class="options-list">
+    <div class="option recommended"><span class="opt-label">Via Twilio ✅</span> Use Twilio's WhatsApp API. Easier approval, better docs, template management. Higher cost per message (~$0.005/msg).</div>
+    <div class="option"><span class="opt-label">Direct Meta API</span> Apply directly through Meta for WhatsApp Business API. Lower cost but strict approval process (2–4 weeks). Requires business verification.</div>
+  </div>
+  <div class="recommendation"><strong>Recommendation: Via Twilio for MVP.</strong> Faster to set up, better documentation, and WhatsApp is available in all Tutorszone operating countries (USA, Canada, UK, UAE, SA, Nigeria) via Twilio. Switch to direct Meta API in V2 for cost savings at scale.</div>
+</div>
+
+<!-- Decision 4 -->
+<div class="decision-card" id="d4">
+  <h3>4. Masked Calling Provider</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge decided">DECIDED</span>
+  </div>
+  <p>Teachers initiate calls to parents without seeing their phone number. Calls are recorded (audio only) and deleted after 7 days.</p>
+  <div class="options-list">
+    <div class="option recommended"><span class="opt-label">Twilio Proxy ✅</span> Purpose-built for marketplace-style masked calling. ~$0.01/session + per-minute charges. Good Nigeria coverage. Recording built-in.</div>
+    <div class="option"><span class="opt-label">Vonage Number Masking</span> Similar capability. Slightly cheaper per-minute but less documentation and smaller community.</div>
+  </div>
+  <div class="recommendation"><strong>Decision: Twilio Proxy.</strong> Best docs, most mature proxy API, good coverage in all Tutorszone countries including Nigeria. Built-in recording simplifies the QA workflow.</div>
+</div>
+
+<!-- Decision 5 -->
+<div class="decision-card" id="d5">
+  <h3>5. Student Age Range</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge pending">PENDING</span>
+  </div>
+  <p>What age range are the students? This determines the complexity of the student dashboard UI.</p>
+  <div class="options-list">
+    <div class="option"><span class="opt-label">6–10 years</span> Needs very visual, simple UI. Large buttons, minimal text. Possibly parental co-use required.</div>
+    <div class="option recommended"><span class="opt-label">11–18 years ✅</span> Can handle text-based UI. Simple but functional. Independent use.</div>
+    <div class="option"><span class="opt-label">Mixed (6–18)</span> Need two UI modes: simple (young) and standard (teens). More design and development work.</div>
+  </div>
+  <div class="recommendation"><strong>Recommendation: 11–18 years for MVP.</strong> Students in this range can use a standard dashboard independently. If younger students (6–10) are a significant segment, plan for a simplified "junior" UI in V2.</div>
+</div>
+
+<!-- Decision 6 -->
+<div class="decision-card" id="d6">
+  <h3>6. Tech Stack</h3>
+  <div class="decision-meta">
+    <span class="badge critical">BLOCKS MVP</span>
+    <span class="badge decided">DECIDED</span>
+  </div>
+  <p>Confirmed technology choices for the platform.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Choice</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>Next.js 15 (React)</td><td>SSR for SEO on public pages, responsive SPA for dashboards</td></tr>
+        <tr><td>Backend</td><td>Next.js API routes + service layer</td><td>Unified language, rapid development. Split to separate backend only if scaling demands it</td></tr>
+        <tr><td>Database</td><td>PostgreSQL 18</td><td>Relational integrity, JSON support, mature multi-tenant patterns (RLS)</td></tr>
+        <tr><td>ORM</td><td>Prisma v7</td><td>Type-safe queries, migrations, multi-tenant middleware</td></tr>
+        <tr><td>Auth</td><td>NextAuth v5</td><td>Role-based access, JWT sessions, OAuth-ready for V2</td></tr>
+        <tr><td>Video</td><td>LiveKit (self-hosted or cloud)</td><td>Apache 2.0, React SDK, native silent observer, switchable via config</td></tr>
+        <tr><td>Calls</td><td>Twilio Proxy</td><td>Masked calling with server-side recording</td></tr>
+        <tr><td>Notifications</td><td>SendGrid (email) + Twilio (SMS/WhatsApp)</td><td>Multi-channel delivery</td></tr>
+        <tr><td>Job Queue</td><td>Redis + BullMQ</td><td>Background jobs for reminders, screenshot capture, cleanup</td></tr>
+        <tr><td>Storage</td><td>Local disk (MVP) → S3 (V2)</td><td>Screenshots + audio recordings, deleted weekly</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                    INFRASTRUCTURE                       -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="infra">Infrastructure</h2>
+<p>Designed to switch between self-hosted LiveKit and LiveKit Cloud. No video recording = dramatically reduced costs. Screenshots and audio calls are stored locally and deleted weekly.</p>
+
+<h3 id="livekit-switch">LiveKit Switching Architecture</h3>
+<div class="card" style="border-left: 4px solid var(--primary);">
+  <p>The platform uses a <strong>configuration-based approach</strong> to switch between self-hosted LiveKit and LiveKit Cloud. The frontend code is identical in both cases — only the server URL and API key change.</p>
+  
+  <h4>Configuration</h4>
+  <p>Switching is controlled by environment variables. Set <code>LIVEKIT_MODE</code> to either <code>self_hosted</code> or <code>cloud</code>, then provide the corresponding URL, API key, and API secret. The frontend SDK connects to whichever endpoint is configured — no code changes required.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Variable</th><th>Self-Hosted</th><th>Cloud</th></tr></thead>
+      <tbody>
+        <tr><td><code>LIVEKIT_MODE</code></td><td>self_hosted</td><td>cloud</td></tr>
+        <tr><td><code>LIVEKIT_URL</code></td><td>wss://livekit.yourdomain.com</td><td>wss://your-project.livekit.cloud</td></tr>
+        <tr><td><code>LIVEKIT_API_KEY</code></td><td>Your self-hosted API key</td><td>Your LiveKit Cloud API key</td></tr>
+        <tr><td><code>LIVEKIT_API_SECRET</code></td><td>Your self-hosted API secret</td><td>Your LiveKit Cloud API secret</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>How It Works</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Component</th><th>Self-Hosted</th><th>Cloud</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend SDK</td><td>Same LiveKit React SDK</td><td>Same LiveKit React SDK</td></tr>
+        <tr><td>Server URL</td><td>Your server URL</td><td>LiveKit Cloud URL</td></tr>
+        <tr><td>API Key</td><td>Your self-hosted key</td><td>LiveKit Cloud key</td></tr>
+        <tr><td>Infrastructure</td><td>You manage (Docker, coturn)</td><td>LiveKit manages</td></tr>
+        <tr><td>Cost</td><td>$12–18/month (server)</td><td>$0.002/min (free tier: 50 hrs/mo)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><strong>Migration path:</strong> Start with LiveKit Cloud for MVP (fastest to launch). When ready to reduce costs at scale, deploy self-hosted LiveKit and switch the config. No code changes required.</p>
+</div>
+
+<h3 id="stack">Architecture — Self-Hosted Mode</h3>
+<div class="infra-diagram">┌─────────────────────────────────────────────────────────────────────┐
+│                          USERS (Browser)                             │
+│        Parents │ Students │ Tutors │ Staff (9 roles)                 │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ HTTPS
+┌──────────────────────────────▼──────────────────────────────────────┐
+│                     SERVER 1: APPLICATION                            │
+│                     (4 vCPU, 8GB RAM)                                │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  Next.js 15 (Frontend + API Routes)                          │   │
+│  │  ├── Role-based dashboards (9 roles)                         │   │
+│  │  ├── Teacher onboarding & dashboard                          │   │
+│  │  ├── Parent registration & onboarding                        │   │
+│  │  ├── Scheduling engine (timezone-aware)                      │   │
+│  │  └── LiveKit client SDK (React components)                   │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  PostgreSQL 18 (with Row-Level Security for multi-tenancy)   │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  Redis + BullMQ (background jobs: reminders, screenshots)    │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  Local Storage (screenshots + audio, auto-delete 7 days)     │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ WebSocket (WebRTC signaling)
+┌──────────────────────────────▼──────────────────────────────────────┐
+│                     SERVER 2: LIVEKIT SFU (Self-Hosted)              │
+│                     (2 vCPU, 4GB RAM)                                │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  LiveKit Server (Apache 2.0)                                  │   │
+│  │  ├── WebRTC SFU (audio/video routing)                        │   │
+│  │  ├── Room management API                                     │   │
+│  │  ├── Participant events (attendance tracking)                │   │
+│  │  └── Screen share forwarding                                 │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  Screenshot Worker (BullMQ job, every 10 min)                │   │
+│  │  └── Subscribes to tutor track → captures frame → saves      │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────────────┐
+│                     SERVER 3: TURN/STUN (coturn)                     │
+│                     (1 vCPU, 1GB RAM)                                │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  coturn — NAT traversal for WebRTC                            │   │
+│  │  Essential for users behind strict firewalls/NATs             │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+
+EXTERNAL SERVICES (API-based, not self-hosted):
+  ├── Twilio .................... SMS + WhatsApp + masked calls + recording
+  ├── SendGrid .................. Email notifications
+  └── Uptime Kuma (self-hosted) . Monitoring & alerts (runs on Server 1)</div>
+
+<h3>Architecture — LiveKit Cloud Mode</h3>
+<div class="infra-diagram">┌─────────────────────────────────────────────────────────────────────┐
+│                          USERS (Browser)                             │
+│        Parents │ Students │ Tutors │ Staff (9 roles)                 │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ HTTPS
+┌──────────────────────────────▼──────────────────────────────────────┐
+│                     SERVER 1: APPLICATION                            │
+│                     (4 vCPU, 8GB RAM)                                │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │  Next.js 15 (Frontend + API Routes)                          │   │
+│  │  ├── Role-based dashboards (9 roles)                         │   │
+│  │  ├── Teacher onboarding & dashboard                          │   │
+│  │  ├── Parent registration & onboarding                        │   │
+│  │  ├── Scheduling engine (timezone-aware)                      │   │
+│  │  └── LiveKit client SDK (connects to LiveKit Cloud)          │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  PostgreSQL 18 (with Row-Level Security for multi-tenancy)   │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  Redis + BullMQ (background jobs: reminders, screenshots)    │   │
+│  ├──────────────────────────────────────────────────────────────┤   │
+│  │  Local Storage (screenshots + audio, auto-delete 7 days)     │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │ WebSocket (WebRTC signaling)
+                               │
+                    ┌──────────▼──────────┐
+                    │  LIVEKIT CLOUD      │
+                    │  (Managed by LiveKit)│
+                    │  - SFU server        │
+                    │  - Global CDN        │
+                    │  - Auto-scaling      │
+                    │  - TURN/STUN         │
+                    └─────────────────────┘
+
+EXTERNAL SERVICES (API-based, not self-hosted):
+  ├── LiveKit Cloud ............. Video/audio routing (managed)
+  ├── Twilio .................... SMS + WhatsApp + masked calls + recording
+  ├── SendGrid .................. Email notifications
+  └── Uptime Kuma (self-hosted) . Monitoring & alerts (runs on Server 1)</div>
+
+<h3 id="costs">Cost Breakdown</h3>
+
+<h4>Option A: Self-Hosted LiveKit</h4>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Specs</th><th>Provider</th><th>Monthly Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>App Server</strong><br><small>Next.js + PostgreSQL + Redis + BullMQ</small></td>
+        <td>4 vCPU, 8GB RAM, 80GB SSD</td>
+        <td>Hetzner CX32 / DigitalOcean</td>
+        <td>$12–18</td>
+      </tr>
+      <tr>
+        <td><strong>LiveKit SFU</strong><br><small>Video/audio routing, screenshot worker</small></td>
+        <td>2 vCPU, 4GB RAM, 40GB SSD</td>
+        <td>Hetzner CX22 / DigitalOcean</td>
+        <td>$12–18</td>
+      </tr>
+      <tr>
+        <td><strong>TURN Server (coturn)</strong><br><small>NAT traversal for WebRTC</small></td>
+        <td>1 vCPU, 1GB RAM</td>
+        <td>Hetzner CX11 / DigitalOcean</td>
+        <td>$4–6</td>
+      </tr>
+      <tr>
+        <td><strong>Local Storage</strong><br><small>Screenshots + audio (deleted weekly, &lt;2GB)</small></td>
+        <td>Included on app server disk</td>
+        <td>—</td>
+        <td>$0</td>
+      </tr>
+      <tr>
+        <td><strong>Bandwidth</strong><br><small>Video streaming egress</small></td>
+        <td>~5TB/month at 100 students</td>
+        <td>Included (Hetzner: 20TB)</td>
+        <td>$0–50</td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong><br><small>SMS + WhatsApp + masked calls</small></td>
+        <td>~2000 SMS, ~500 WhatsApp, ~200 calls/mo</td>
+        <td>Twilio</td>
+        <td>$15–30</td>
+      </tr>
+      <tr>
+        <td><strong>SendGrid</strong><br><small>Email notifications</small></td>
+        <td>Free tier: 100 emails/day</td>
+        <td>SendGrid</td>
+        <td>$0–20</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="cost-total">
+  <div class="label">Self-Hosted Total (estimated)</div>
+  <div class="amount">$43 – $142 / month</div>
+</div>
+
+<h4>Option B: LiveKit Cloud</h4>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Component</th><th>Specs</th><th>Provider</th><th>Monthly Cost</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>App Server</strong><br><small>Next.js + PostgreSQL + Redis + BullMQ</small></td>
+        <td>4 vCPU, 8GB RAM, 80GB SSD</td>
+        <td>Hetzner CX32 / DigitalOcean</td>
+        <td>$12–18</td>
+      </tr>
+      <tr>
+        <td><strong>LiveKit Cloud</strong><br><small>Video/audio routing (managed)</small></td>
+        <td>Free tier: 50 hours/month<br>Then $0.002/min</td>
+        <td>LiveKit Cloud</td>
+        <td>$0–50</td>
+      </tr>
+      <tr>
+        <td><strong>Local Storage</strong><br><small>Screenshots + audio (deleted weekly, &lt;2GB)</small></td>
+        <td>Included on app server disk</td>
+        <td>—</td>
+        <td>$0</td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong><br><small>SMS + WhatsApp + masked calls</small></td>
+        <td>~2000 SMS, ~500 WhatsApp, ~200 calls/mo</td>
+        <td>Twilio</td>
+        <td>$15–30</td>
+      </tr>
+      <tr>
+        <td><strong>SendGrid</strong><br><small>Email notifications</small></td>
+        <td>Free tier: 100 emails/day</td>
+        <td>SendGrid</td>
+        <td>$0–20</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="cost-total">
+  <div class="label">LiveKit Cloud Total (estimated)</div>
+  <div class="amount">$27 – $118 / month</div>
+</div>
+
+<h4>Cost Comparison by Scale</h4>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Scale</th><th>Students</th><th>Sessions/Month</th><th>Self-Hosted</th><th>LiveKit Cloud</th></tr></thead>
+    <tbody>
+      <tr><td>Small</td><td>50</td><td>~600 hrs</td><td><strong>$43–60/mo</strong></td><td><strong>$27–40/mo</strong></td></tr>
+      <tr><td>Medium</td><td>100</td><td>~1,200 hrs</td><td><strong>$55–80/mo</strong></td><td><strong>$50–80/mo</strong></td></tr>
+      <tr><td>Large</td><td>200</td><td>~2,400 hrs</td><td><strong>$80–142/mo</strong></td><td><strong>$100–170/mo</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="border-left: 4px solid var(--success);">
+  <p><strong>Break-even point:</strong> At ~1,500 hours/month (~125 students), self-hosted becomes cheaper than LiveKit Cloud. Below that, cloud is more cost-effective (no server to manage). Above that, self-hosted saves money.</p>
+  <p><strong>Recommendation:</strong> Start with LiveKit Cloud for MVP. Migrate to self-hosted when you hit 100+ students and want to reduce costs.</p>
+</div>
+
+<h4>Free Tier Option (Oracle Cloud)</h4>
+<div class="card" style="border-left: 4px solid var(--success);">
+  <p>Oracle Cloud offers <strong>always-free ARM instances</strong> (4 vCPU, 24GB RAM total across instances). You can run the entire stack on free tier:</p>
+  <ul>
+    <li>ARM Instance 1: App server — Next.js + PostgreSQL + Redis (4 vCPU, 12GB RAM)</li>
+    <li>ARM Instance 2: LiveKit SFU + coturn (4 vCPU, 12GB RAM) — if self-hosting</li>
+    <li>Object Storage: 10GB free (for backups)</li>
+  </ul>
+  <p><strong>Total cost: $0/month</strong> — ideal for MVP validation. Limitations: no guaranteed availability, instances can be reclaimed under heavy load.</p>
+  <p><strong>Alternative:</strong> Use LiveKit Cloud (free tier: 50 hrs/month) + Oracle Cloud free tier for app server = $0/month with better reliability.</p>
+</div>
+
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--              DEVELOPMENT COST & TIMELINE                -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<h2 id="cost-timeline">Development Cost & Timeline</h2>
+<p>Prepared by Caltech Innovations. All costs in Nigerian Naira (NGN).</p>
+
+<div class="card" style="border-left: 4px solid var(--primary);">
+  <h3 style="margin-top: 0;">Total Development Cost</h3>
+  <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0;">₦3,500,000</div>
+  <p style="color: var(--text-muted); font-size: 0.9rem;">Three million, five hundred thousand Naira only</p>
+</div>
+
+<h3>Payment Schedule</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Milestone</th><th>Amount (NGN)</th><th>Percentage</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Upfront Payment</strong></td>
+        <td style="font-weight: 700; color: var(--success);">₦2,000,000</td>
+        <td>57%</td>
+        <td>Upon contract signing and project kickoff</td>
+      </tr>
+      <tr>
+        <td><strong>Midway Payment</strong></td>
+        <td style="font-weight: 700; color: var(--warning);">₦500,000</td>
+        <td>14%</td>
+        <td>Upon completion of 50% of MVP features (demo review)</td>
+      </tr>
+      <tr>
+        <td><strong>Completion Payment</strong></td>
+        <td style="font-weight: 700; color: var(--primary);">₦1,000,000</td>
+        <td>29%</td>
+        <td>Upon MVP delivery, acceptance testing, and handover</td>
+      </tr>
+      <tr style="background: var(--primary-light); font-weight: 700;">
+        <td>TOTAL</td>
+        <td>₦3,500,000</td>
+        <td>100%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h3>Project Timeline</h3>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Phase</th><th>Duration</th><th>Deliverables</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 1: MVP Development</strong></td>
+        <td style="font-weight: 700;">3 months</td>
+        <td>
+          <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
+            <li>Teacher self-onboarding & dashboard</li>
+            <li>Parent self-registration & onboarding</li>
+            <li>Live classroom (LiveKit integration)</li>
+            <li>Masked calling with recording</li>
+            <li>Scheduling system (timezone-aware)</li>
+            <li>Tutor screen monitoring</li>
+            <li>Role-based dashboards (9 roles)</li>
+            <li>Infrastructure setup (self-hosted or cloud)</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2: Active Support</strong></td>
+        <td style="font-weight: 700;">3 months</td>
+        <td>
+          <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
+            <li>Bug fixes and issue resolution</li>
+            <li>Performance optimization</li>
+            <li>Minor feature adjustments based on user feedback</li>
+            <li>Infrastructure monitoring and maintenance</li>
+            <li>Technical support and troubleshooting</li>
+            <li>Documentation updates</li>
+          </ul>
+        </td>
+      </tr>
+      <tr style="background: var(--primary-light); font-weight: 700;">
+        <td>TOTAL PROJECT DURATION</td>
+        <td>6 months</td>
+        <td>3 months development + 3 months active support</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card" style="border-left: 4px solid var(--warning);">
+  <h4 style="margin-top: 0; color: var(--warning);">What's Included</h4>
+  <ul>
+    <li>Full MVP development (6 core features as specified)</li>
+    <li>Infrastructure setup and configuration (self-hosted or cloud)</li>
+    <li>Deployment to production environment</li>
+    <li>3 months active post-launch support</li>
+    <li>Technical documentation</li>
+    <li>Training for admin staff</li>
+  </ul>
+  <h4 style="color: var(--text-muted);">What's Not Included</h4>
+  <ul>
+    <li>Ongoing infrastructure costs (server hosting, Twilio, SendGrid, etc.)</li>
+    <li>Third-party API costs (Twilio, LiveKit Cloud if used, etc.)</li>
+    <li>Features beyond the 6 core MVP features</li>
+    <li>Mobile app development (iOS/Android)</li>
+    <li>Support beyond the 3-month active support period</li>
+  </ul>
+</div>
+
+<div style="margin-top: 3rem; padding: 1.5rem; background: var(--surface); border-radius: 10px; border: 1px solid var(--border);">
+  <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+    <strong>Document:</strong> Tutorszone MVP — Implementation Plan<br>
+    <strong>Prepared by:</strong> Caltech Innovations<br>
+    <strong>Status:</strong> Draft v2.0<br>
+    <strong>Confidentiality:</strong> This document is confidential and may not be shared with third parties without written consent from Caltech Innovations.<br>
+    <strong>Related:</strong> PRD-Tutorszone.md (full product requirements)
+  </p>
+</div>
+
+</main>
+</div>
+
+</div><!-- end doc-content -->
+
+<script>
+function checkPassword() {
+  var input = document.getElementById('doc-password');
+  var error = document.getElementById('lock-error');
+  if (input.value === '45hrj75FG') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('doc-content').classList.add('visible');
+    error.textContent = '';
+  } else {
+    error.textContent = 'Invalid password. Please try again.';
+    input.value = '';
+    input.focus();
+  }
+}
+document.getElementById('doc-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+</script>
+
+</body>
+</html>
