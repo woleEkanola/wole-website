@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorszone — Technical Implementation Plan</title>
+<style>
+  :root {
+    --bg: #ffffff; --surface: #f8fafc; --card: #ffffff; --border: #e2e8f0;
+    --text: #1e293b; --text-muted: #64748b; --primary: #2563eb; --primary-light: #dbeafe;
+    --success: #16a34a; --success-light: #dcfce7; --warning: #d97706; --warning-light: #fef3c7;
+    --danger: #dc2626; --danger-light: #fee2e2; --purple: #7c3aed; --purple-light: #ede9fe;
+    --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--surface); color: var(--text); line-height: 1.6; }
+
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 280px; background: #0f172a; color: #e2e8f0; padding: 1.5rem 0;
+    position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
+  }
+  .sidebar h2 { font-size: 1.1rem; padding: 0 1.25rem; margin-bottom: 0.25rem; color: #fff; }
+  .sidebar .subtitle { font-size: 0.75rem; padding: 0 1.25rem 1rem; color: #94a3b8; border-bottom: 1px solid #1e293b; margin-bottom: 0.75rem; }
+  .sidebar .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: #64748b; padding: 0.5rem 1.25rem 0.25rem; font-weight: 700; }
+  .sidebar a { display: block; padding: 0.35rem 1.25rem; color: #cbd5e1; text-decoration: none; font-size: 0.82rem; border-left: 3px solid transparent; transition: all 0.15s; }
+  .sidebar a:hover { background: #1e293b; color: #fff; border-left-color: var(--primary); }
+  .main { margin-left: 280px; padding: 2.5rem 3rem; max-width: 1100px; }
+
+  h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+  h1 span { color: var(--primary); }
+  .page-desc { font-size: 1rem; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 700px; }
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); }
+  h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
+  h4 { font-size: 0.95rem; font-weight: 600; margin: 1rem 0 0.5rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  p { margin-bottom: 0.75rem; font-size: 0.92rem; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; font-size: 0.9rem; }
+  li { margin-bottom: 0.35rem; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .table-wrap { overflow-x: auto; margin: 1rem 0; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  thead th { background: #f1f5f9; font-weight: 600; text-align: left; padding: 0.65rem 0.85rem; border-bottom: 2px solid var(--border); white-space: nowrap; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+  tbody td { padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+
+  .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+  .badge.mvp { background: var(--success-light); color: var(--success); }
+  .badge.v2 { background: var(--primary-light); color: var(--primary); }
+
+  pre, .schema-block {
+    background: #1e293b; color: #f8fafc; padding: 1.25rem; border-radius: 10px;
+    overflow-x: auto; font-family: var(--mono); font-size: 0.78rem; line-height: 1.6; margin: 1rem 0;
+  }
+  code { background: #f1f5f9; color: #1e293b; padding: 0.1rem 0.35rem; border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; }
+
+  .section-divider { height: 4px; background: linear-gradient(90deg, var(--primary), var(--purple), var(--success)); border-radius: 2px; margin: 3rem 0; }
+
+  .dir-tree { font-family: var(--mono); font-size: 0.82rem; line-height: 1.8; margin: 1rem 0; padding: 1rem; background: var(--surface); border-radius: 8px; border: 1px solid var(--border); }
+  .dir-tree .dir { color: var(--primary); font-weight: 600; }
+  .dir-tree .file { color: var(--text); }
+  .dir-tree .comment { color: var(--text-muted); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 1.5rem; }
+  }
+
+  /* Lock Screen */
+  #lock-screen {
+    position: fixed; inset: 0; z-index: 99999;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  #lock-screen.hidden { display: none; }
+  .lock-card {
+    background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+    padding: 3rem 2.5rem; text-align: center; max-width: 480px; width: 90%;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  }
+  .lock-logo {
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    color: #60a5fa; margin-bottom: 0.5rem;
+  }
+  .lock-title { font-size: 1.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 0.5rem; line-height: 1.3; }
+  .lock-subtitle { font-size: 0.9rem; color: #94a3b8; margin-bottom: 2rem; line-height: 1.5; }
+  .lock-input-group { margin-bottom: 1.25rem; }
+  .lock-input-group input {
+    width: 100%; padding: 0.85rem 1rem; border: 2px solid #334155; border-radius: 10px;
+    background: #0f172a; color: #f8fafc; font-size: 1rem; text-align: center;
+    letter-spacing: 0.1em; outline: none; transition: border-color 0.2s;
+  }
+  .lock-input-group input:focus { border-color: #60a5fa; }
+  .lock-input-group input::placeholder { color: #475569; letter-spacing: 0.05em; }
+  .lock-btn {
+    width: 100%; padding: 0.85rem; border: none; border-radius: 10px;
+    background: #2563eb; color: #fff; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .lock-btn:hover { background: #1d4ed8; }
+  .lock-error { color: #f87171; font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.25rem; }
+  .lock-confidential { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #334155; font-size: 0.75rem; color: #64748b; line-height: 1.5; }
+  .lock-confidential strong { color: #f87171; }
+  #doc-content { display: none; }
+  #doc-content.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Lock Screen -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-logo">Caltech Innovations</div>
+    <div class="lock-title">Technical Implementation Plan — Tutorszone Platform</div>
+    <div class="lock-subtitle">Confidential. Prepared for internal engineering review.</div>
+    <div class="lock-input-group">
+      <input type="password" id="doc-password" placeholder="Enter access password" autocomplete="off">
+    </div>
+    <button class="lock-btn" onclick="checkPassword()">Access Document</button>
+    <div class="lock-error" id="lock-error"></div>
+    <div class="lock-confidential">
+      <strong>CONFIDENTIAL</strong><br>
+      Prepared by Caltech Innovations. Not for distribution to third parties.
+    </div>
+  </div>
+</div>
+
+<!-- Document Content -->
+<div id="doc-content">
+
+<div class="layout">
+
+<nav class="sidebar">
+  <h2>Caltech Innovations</h2>
+  <p class="subtitle">Technical Plan — Tutorszone<br><span style="color: #f87171; font-weight: 600;">CONFIDENTIAL</span></p>
+
+  <div class="nav-group"><div class="nav-label">Overview</div>
+    <a href="#overview">Executive Summary</a>
+    <a href="#architecture">High-Level Architecture</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Tech Stack</div>
+    <a href="#stack">Technology Choices</a>
+    <a href="#versions">Version Matrix</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Database</div>
+    <a href="#schema">Core Schema Design</a>
+    <a href="#multi-tenant">Multi-Tenant Strategy</a>
+    <a href="#indexing">Indexing & Performance</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Authentication</div>
+    <a href="#auth-flow">Auth Architecture</a>
+    <a href="#rbac">RBAC & Permissions</a>
+    <a href="#roles">Role Matrix</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">API Design</div>
+    <a href="#api-arch">API Architecture</a>
+    <a href="#api-routes">Key Endpoints</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Project Structure</div>
+    <a href="#project-layout">Directory Layout</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Key Systems</div>
+    <a href="#livekit">LiveKit Integration</a>
+    <a href="#scheduling">Scheduling Engine</a>
+    <a href="#billing">Billing Architecture</a>
+    <a href="#notifications">Notification Pipeline</a>
+    <a href="#reports">Reports System</a>
+  </div>
+  <div class="nav-group"><div class="nav-label">Operations</div>
+    <a href="#deployment">Deployment Strategy</a>
+    <a href="#monitoring">Monitoring & Logging</a>
+    <a href="#security">Security Considerations</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<h1 id="overview">Technical Implementation <span>Plan</span></h1>
+<p class="page-desc">
+  Complete technical architecture, database schema, API design, and implementation strategy for the Tutorszone platform. This document assumes familiarity with the MVP features document and the full PRD.
+</p>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ ARCHITECTURE ═══════════════ -->
+<h2 id="architecture">High-Level Architecture</h2>
+
+<p>The platform follows a <strong>monolithic Next.js full-stack</strong> pattern with a service layer pattern internally. This keeps the MVP lean — one codebase, one deploy, one database — while the service abstraction layer makes it possible to split into microservices later if needed.</p>
+
+<pre>┌────────────────────────────────────────────────────────────┐
+│                    CLIENT (Browser)                        │
+│        Next.js App Router (SSR + Client Components)        │
+│                 Role-based routing & layouts                │
+├────────────────────────────────────────────────────────────┤
+│                    API LAYER (Next.js Route Handlers)       │
+│  /api/auth/*  │ /api/schedule/* │ /api/classroom/* │ ...   │
+├────────────────────────────────────────────────────────────┤
+│                    SERVICE LAYER (lib/services/)            │
+│  AuthService │ ScheduleService │ ClassroomService │ ...    │
+├────────────────────────────────────────────────────────────┤
+│  Prisma ORM (type-safe DB access + multi-tenant middleware) │
+├────────────────────────────────────────────────────────────┤
+│  PostgreSQL 18  │  Redis (BullMQ)  │  Local Disk Storage   │
+└────────────────────────────────────────────────────────────┘
+        │                │
+   ┌────▼────┐    ┌──────▼──────┐
+   │ LiveKit  │    │   Twilio    │
+   │ (SFU)    │    │ SMS/WhatsApp│
+   └─────────┘    │ Masked Call │
+                  └─────────────┘</pre>
+
+<p><strong>Key architectural decisions:</strong></p>
+<ul>
+  <li><strong>Monolith-first:</strong> Single Next.js app handles frontend and API. Service layer abstracts business logic so it can be extracted later.</li>
+  <li><strong>Prisma middleware pattern:</strong> Every Prisma query is automatically scoped to the current tenant via a <code>tenant_id</code> filter injected by middleware.</li>
+  <li><strong>Event-driven background jobs:</strong> BullMQ (Redis-backed) handles billing, notifications, screenshot capture, report generation, and scheduled cleanup.</li>
+  <li><strong>LiveKit abstraction:</strong> A thin adapter layer makes switching between self-hosted and LiveKit Cloud a config change.</li>
+</ul>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ TECH STACK ═══════════════ -->
+<h2 id="stack">Technology Choices</h2>
+
+<div class="table-wrap" id="versions">
+  <table>
+    <thead><tr><th>Layer</th><th>Technology</th><th>Version</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend Framework</td><td>Next.js (App Router)</td><td>15.x</td><td>SSR for SEO on public pages. React Server Components for dashboards. Monorepo-capable.</td></tr>
+      <tr><td>UI Components</td><td>shadcn/ui (base-ui)</td><td>2025</td><td>Tailwind-based. Customizable. Accessible. Lightweight.</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS</td><td>4.x</td><td>Utility-first. Zero-runtime. Tree-shaking.</td></tr>
+      <tr><td>API Runtime</td><td>Next.js Route Handlers</td><td>—</td><td>Co-located with frontend. Edge-compatible. No separate server needed.</td></tr>
+      <tr><td>Database</td><td>PostgreSQL</td><td>18</td><td>Row-Level Security for multi-tenancy. JSONB for flexible fields. Mature ecosystem.</td></tr>
+      <tr><td>ORM</td><td>Prisma</td><td>7.x</td><td>Type-safe queries. Auto-migrations. Middleware for tenant scoping. Adapter required (libsql for SQLite dev).</td></tr>
+      <tr><td>Authentication</td><td>NextAuth (Auth.js)</td><td>5.x</td><td>JWT sessions. Role-based access. OAuth-ready for V2. Credentials provider for MVP.</td></tr>
+      <tr><td>Video/Audio</td><td>LiveKit</td><td>latest</td><td>Apache 2.0. React SDK. Native silent observer. Self-hosted or cloud.</td></tr>
+      <tr><td>Screen Capture</td><td>Puppeteer</td><td>latest</td><td>Headless Chrome for screenshot capture. Runs as BullMQ job.</td></tr>
+      <tr><td>Masked Calls</td><td>Twilio Proxy API</td><td>—</td><td>Purpose-built for number masking. Built-in recording. Nigeria coverage.</td></tr>
+      <tr><td>Notifications</td><td>SendGrid + Twilio</td><td>—</td><td>Email via SendGrid. SMS + WhatsApp via Twilio Message API.</td></tr>
+      <tr><td>Background Jobs</td><td>BullMQ + Redis</td><td>5.x / 7.x</td><td>Persistent job queues. Scheduled jobs. Retry with backoff.</td></tr>
+      <tr><td>PDF Generation</td><td>Puppeteer / React-PDF</td><td>—</td><td>Server-side PDF rendering for reports and invoices.</td></tr>
+      <tr><td>File Storage</td><td>Local disk → S3 (V2)</td><td>—</td><td>Local for MVP (screenshots, audio deleted weekly). S3-compatible for V2.</td></tr>
+      <tr><td>Monitoring</td><td>Uptime Kuma (self-hosted)</td><td>latest</td><td>Health checks. Status page. Alerting.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ DATABASE SCHEMA ═══════════════ -->
+<h2 id="schema">Core Database Schema</h2>
+
+<p>Every table includes <code>tenant_id</code> from day one. This is the single most important architectural constraint — it makes the V1→V2 multi-tenant migration a configuration change rather than a data migration.</p>
+
+<h3>Core Tables</h3>
+
+<pre>-- ═══ TENANCY ═══
+CREATE TABLE tenants (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        TEXT NOT NULL,
+  slug        TEXT UNIQUE NOT NULL,
+  settings    JSONB DEFAULT '{}',
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ USERS ═══
+CREATE TABLE users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id     UUID NOT NULL REFERENCES tenants(id),
+  email         TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  role          TEXT NOT NULL CHECK (role IN (
+    'super_admin','hr_admin','operations','les_qa',
+    'customer_support','teacher','finance','parent','student'
+  )),
+  first_name    TEXT NOT NULL,
+  last_name     TEXT NOT NULL,
+  phone         TEXT,
+  country       TEXT,
+  timezone      TEXT DEFAULT 'UTC',
+  avatar_url    TEXT,
+  is_active     BOOLEAN DEFAULT true,
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  updated_at    TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(tenant_id, email)
+);
+
+-- ═══ PROFILES (role-specific data) ═══
+CREATE TABLE teacher_profiles (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID UNIQUE NOT NULL REFERENCES users(id),
+  subjects        TEXT[] NOT NULL,
+  grade_levels    TEXT[] NOT NULL,
+  bio             TEXT,
+  qualifications  JSONB DEFAULT '[]',
+  pay_rate        DECIMAL(10,2),
+  pay_currency    TEXT DEFAULT 'NGN',
+  availability    JSONB DEFAULT '{}',  -- { "monday": [["09:00","12:00"]], ... }
+  probation_end   DATE,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE student_profiles (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID UNIQUE NOT NULL REFERENCES users(id),
+  parent_id       UUID NOT NULL REFERENCES users(id),
+  grade           TEXT NOT NULL,
+  subjects        TEXT[] NOT NULL,
+  assigned_tutor  UUID REFERENCES users(id),
+  initial_assessment_completed BOOLEAN DEFAULT false,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE parent_profiles (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID UNIQUE NOT NULL REFERENCES users(id),
+  payment_method  JSONB DEFAULT '{}',
+  whatsapp_opt_in BOOLEAN DEFAULT false,
+  sms_opt_in      BOOLEAN DEFAULT true,
+  email_opt_in    BOOLEAN DEFAULT true,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ SCHEDULING ═══
+CREATE TABLE sessions (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id       UUID NOT NULL REFERENCES tenants(id),
+  tutor_id        UUID NOT NULL REFERENCES users(id),
+  student_id      UUID NOT NULL REFERENCES users(id),
+  subject         TEXT NOT NULL,
+  start_time      TIMESTAMPTZ NOT NULL,
+  end_time        TIMESTAMPTZ NOT NULL,
+  status          TEXT DEFAULT 'scheduled' CHECK (status IN (
+    'scheduled','live','completed','cancelled','no_show'
+  )),
+  recurrence_rule TEXT,  -- RFC 5545 RRULE for recurring sessions
+  created_by      UUID REFERENCES users(id),
+  created_at      TIMESTAMPTZ DEFAULT now(),
+  updated_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ ATTENDANCE ═══
+CREATE TABLE attendance_logs (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      UUID NOT NULL REFERENCES sessions(id),
+  user_id         UUID NOT NULL REFERENCES users(id),
+  join_time       TIMESTAMPTZ NOT NULL,
+  leave_time      TIMESTAMPTZ,
+  is_late         BOOLEAN DEFAULT false,
+  late_minutes    INTEGER DEFAULT 0,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ CLASSROOM ═══
+CREATE TABLE classroom_rooms (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      UUID UNIQUE REFERENCES sessions(id),
+  livekit_room    TEXT NOT NULL UNIQUE,
+  started_at      TIMESTAMPTZ,
+  ended_at        TIMESTAMPTZ,
+  participant_count INTEGER DEFAULT 0,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ SCREENSHOTS ═══
+CREATE TABLE screenshots (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id      UUID NOT NULL REFERENCES sessions(id),
+  classroom_room_id UUID REFERENCES classroom_rooms(id),
+  file_path       TEXT NOT NULL,
+  captured_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  deleted_at      TIMESTAMPTZ,  -- Soft delete. Hard delete by cron after 7 days.
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ TEACHING RESOURCES ═══
+CREATE TABLE teaching_resources (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id       UUID NOT NULL REFERENCES tenants(id),
+  tutor_id        UUID NOT NULL REFERENCES users(id),
+  title           TEXT NOT NULL,
+  resource_type   TEXT NOT NULL CHECK (resource_type IN ('video','link','pdf','screenshot','other')),
+  file_path       TEXT,
+  external_url    TEXT,
+  session_id      UUID REFERENCES sessions(id),
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ MASKED CALLS ═══
+CREATE TABLE masked_calls (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id       UUID NOT NULL REFERENCES tenants(id),
+  tutor_id        UUID NOT NULL REFERENCES users(id),
+  parent_id       UUID NOT NULL REFERENCES users(id),
+  student_id      UUID REFERENCES users(id),
+  twilio_call_sid TEXT UNIQUE NOT NULL,
+  recording_path  TEXT,
+  duration_secs   INTEGER,
+  initiated_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ended_at        TIMESTAMPTZ,
+  deleted_at      TIMESTAMPTZ  -- Auto-delete after 7 days
+);
+
+-- ═══ REPORTS ═══
+CREATE TABLE reports (
+  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id         UUID NOT NULL REFERENCES tenants(id),
+  student_id        UUID NOT NULL REFERENCES users(id),
+  tutor_id          UUID NOT NULL REFERENCES users(id),
+  report_type       TEXT NOT NULL CHECK (report_type IN ('initial','monthly','quarterly')),
+  report_month      INTEGER,
+  report_year       INTEGER,
+  subject           TEXT NOT NULL,
+  score             DECIMAL(5,2),
+  level_of_understanding TEXT CHECK (level_of_understanding IN (
+    'Excellent','Very Good','Good','Fair','Needs Improvement'
+  )),
+  topics_covered    TEXT,
+  continuation_required BOOLEAN DEFAULT false,
+  continuation_topics TEXT,
+  tutor_comment     TEXT,
+  status            TEXT DEFAULT 'draft' CHECK (status IN ('draft','submitted','approved','rejected')),
+  approved_by       UUID REFERENCES users(id),
+  approved_at       TIMESTAMPTZ,
+  sent_to_parent_at TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ DEFAULT now(),
+  updated_at        TIMESTAMPTZ DEFAULT now()
+);
+
+-- ═══ AUDIT LOG ═══
+CREATE TABLE audit_logs (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id       UUID NOT NULL REFERENCES tenants(id),
+  actor_id        UUID REFERENCES users(id),
+  action          TEXT NOT NULL,
+  entity_type     TEXT NOT NULL,
+  entity_id       UUID,
+  old_values      JSONB,
+  new_values      JSONB,
+  ip_address      TEXT,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);</pre>
+
+<h3 id="multi-tenant">Multi-Tenant Strategy</h3>
+
+<div class="card" style="border-left: 4px solid var(--primary);">
+  <p><strong>V1 (Single-Tenant):</strong> Hardcode <code>tenant_id</code> to a single value. All tables have the column, but it's always the same value. Prisma middleware injects the filter.</p>
+
+  <p><strong>V2 (Multi-Tenant):</strong> Determine <code>tenant_id</code> from the request context (subdomain, JWT claim, or header). Same middleware — just the source of the tenant ID changes.</p>
+
+  <p><strong>Implementation:</strong></p>
+  <pre>// lib/prisma.ts — tenant-aware Prisma client wrapper
+import { PrismaClient } from '@prisma/client';
+
+const globalPrisma = new PrismaClient();
+
+// Middleware injects tenant_id on every query
+globalPrisma.$use(async (params, next) => {
+  const tenantId = getTenantId(); // From JWT or hardcoded in V1
+
+  // Skip for tenant-agnostic tables
+  if (['tenants', 'audit_logs'].includes(params.model)) return next(params);
+
+  // Add tenant filter to all queries
+  params.args.where = { ...params.args.where, tenant_id: tenantId };
+  return next(params);
+});
+
+export default globalPrisma;</pre>
+</div>
+
+<h3 id="indexing">Indexing & Performance</h3>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Table</th><th>Index</th><th>Type</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>users</td><td>tenant_id + email</td><td>UNIQUE</td><td>Login lookup per tenant</td></tr>
+      <tr><td>users</td><td>tenant_id + role</td><td>BTREE</td><td>Role-filtered lists</td></tr>
+      <tr><td>sessions</td><td>tutor_id + start_time</td><td>BTREE</td><td>Tutor schedule queries</td></tr>
+      <tr><td>sessions</td><td>student_id + start_time</td><td>BTREE</td><td>Student schedule queries</td></tr>
+      <tr><td>sessions</td><td>start_time + status</td><td>BTREE</td><td>Live-now dashboard</td></tr>
+      <tr><td>attendance_logs</td><td>session_id + user_id</td><td>UNIQUE</td><td>Prevent duplicate attendance</td></tr>
+      <tr><td>reports</td><td>student_id + report_type + report_year</td><td>BTREE</td><td>Parent report history</td></tr>
+      <tr><td>audit_logs</td><td>actor_id + created_at</td><td>BTREE</td><td>Audit trail queries</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ AUTH ═══════════════ -->
+<h2 id="auth-flow">Authentication Architecture</h2>
+
+<h3 id="rbac">Auth Flow</h3>
+
+<pre>┌─────────┐     ┌──────────────┐     ┌──────────────┐
+│ Browser │────▶│ NextAuth API  │────▶│ PostgreSQL   │
+│ (Login) │     │ /api/auth/*   │     │ (users table)│
+└─────────┘     └──────┬───────┘     └──────────────┘
+                       │ JWT Issued
+                 ┌─────▼──────┐
+                 │ JWT Token  │
+                 │ { sub,     │
+                 │   role,    │
+                 │   tenant } │
+                 └────────────┘
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+    ┌──────────┐ ┌──────────┐ ┌──────────┐
+    │Middleware │ │ API Route│ │ Page     │
+    │ protects  │ │ checks   │ │ checks   │
+    │ routes    │ │ role     │ │ role     │
+    └──────────┘ └──────────┘ └──────────┘</pre>
+
+<p><strong>JWT Claims:</strong> <code>{ sub: user.id, email, role, tenant_id, exp, iat }</code></p>
+
+<p><strong>Middleware (<code>middleware.ts</code>):</strong></p>
+<ul>
+  <li>Public routes: <code>/</code>, <code>/login</code>, <code>/register</code> — no auth required</li>
+  <li>Role routes: <code>/dashboard/:role/*</code> — checks JWT role matches path role</li>
+  <li>API routes: <code>/api/*</code> — validates JWT, injects user context</li>
+  <li>LiveKit tokens: Short-lived JWT issued by API to authorize room join</li>
+</ul>
+
+<h3 id="roles">Permission Model</h3>
+<p>Permissions are checked at two levels: route middleware (is this user allowed here?) and service layer (is this user allowed to do this specific action?).</p>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Role</th><th>Scheduling</th><th>Billing</th><th>QA/Recordings</th><th>HR</th><th>Audit Log</th></tr></thead>
+    <tbody>
+      <tr><td>Super Admin</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td><td>Full</td></tr>
+      <tr><td>HR/Admin</td><td>None</td><td>None</td><td>None</td><td>Full</td><td>None</td></tr>
+      <tr><td>Operations/Scheduling</td><td>Full</td><td>Read</td><td>None</td><td>None</td><td>None</td></tr>
+      <tr><td>LES (QA)</td><td>Read</td><td>None</td><td>Full</td><td>None</td><td>None</td></tr>
+      <tr><td>Customer Support</td><td>Read</td><td>Read</td><td>None</td><td>None</td><td>None</td></tr>
+      <tr><td>Finance</td><td>Read</td><td>Full</td><td>None</td><td>None</td><td>Read</td></tr>
+      <tr><td>Teacher</td><td>Read (own)</td><td>None</td><td>None</td><td>None</td><td>None</td></tr>
+      <tr><td>Parent</td><td>Read (own)</td><td>Read (own)</td><td>Restricted</td><td>None</td><td>None</td></tr>
+      <tr><td>Student</td><td>Read (own)</td><td>None</td><td>Restricted</td><td>None</td><td>None</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ API DESIGN ═══════════════ -->
+<h2 id="api-arch">API Architecture</h2>
+
+<p>All API routes follow a consistent pattern: <code>/api/:resource</code> with standard HTTP methods. Each route handler validates auth, checks permissions, delegates to the service layer, and returns typed responses.</p>
+
+<h3 id="api-routes">Key API Endpoints</h3>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Method</th><th>Route</th><th>Auth</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Public</td><td>Username/password → JWT</td></tr>
+      <tr><td>POST</td><td><code>/api/auth/register</code></td><td>Public</td><td>Parent self-registration</td></tr>
+      <tr><td>GET</td><td><code>/api/sessions</code></td><td>Any</td><td>List sessions (scoped to role)</td></tr>
+      <tr><td>POST</td><td><code>/api/sessions</code></td><td>Operations, SA</td><td>Create session</td></tr>
+      <tr><td>PATCH</td><td><code>/api/sessions/:id</code></td><td>Operations, SA</td><td>Update/reschedule session</td></tr>
+      <tr><td>POST</td><td><code>/api/sessions/:id/reassign</code></td><td>Operations, SA</td><td>Reassign tutor for session</td></tr>
+      <tr><td>GET</td><td><code>/api/classroom/room/:sessionId</code></td><td>Participant</td><td>Get LiveKit room + token</td></tr>
+      <tr><td>POST</td><td><code>/api/classroom/observe/:sessionId</code></td><td>LES, SA</td><td>Get silent observer token</td></tr>
+      <tr><td>GET</td><td><code>/api/attendance/:sessionId</code></td><td>Any</td><td>Get attendance for session</td></tr>
+      <tr><td>POST</td><td><code>/api/calls/initiate</code></td><td>Teacher</td><td>Initiate masked call via Twilio</td></tr>
+      <tr><td>GET</td><td><code>/api/calls/history</code></td><td>Teacher</td><td>Own call history (no numbers)</td></tr>
+      <tr><td>GET</td><td><code>/api/calls/recordings/:id</code></td><td>LES, SA</td><td>Playback call recording</td></tr>
+      <tr><td>GET</td><td><code>/api/screenshots/:sessionId</code></td><td>LES, SA</td><td>Timeline view for session</td></tr>
+      <tr><td>POST</td><td><code>/api/reports</code></td><td>Teacher</td><td>Create assessment report</td></tr>
+      <tr><td>PATCH</td><td><code>/api/reports/:id/approve</code></td><td>LES, SA</td><td>Approve report (triggers auto-send)</td></tr>
+      <tr><td>GET</td><td><code>/api/reports/:studentId</code></td><td>Parent, SA</td><td>All reports for student</td></tr>
+      <tr><td>POST</td><td><code>/api/resources</code></td><td>Teacher</td><td>Upload teaching resource</td></tr>
+      <tr><td>GET</td><td><code>/api/resources</code></td><td>LES, SA</td><td>View all tutor resources</td></tr>
+      <tr><td>POST</td><td><code>/api/notifications/schedule</code></td><td>System</td><td>Schedule reminder (BullMQ job)</td></tr>
+      <tr><td>GET</td><td><code>/api/audit-log</code></td><td>SA</td><td>Query audit trail</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ PROJECT STRUCTURE ═══════════════ -->
+<h2 id="project-layout">Project Directory Structure</h2>
+
+<div class="dir-tree">
+<span class="dir">tutorszone/</span>
+├── <span class="dir">src/</span>
+│   ├── <span class="dir">app/</span>                          <span class="comment"># Next.js App Router pages</span>
+│   │   ├── layout.tsx
+│   │   ├── page.tsx                   <span class="comment"># Landing page</span>
+│   │   ├── <span class="dir">(auth)/</span>                    <span class="comment"># Auth route group</span>
+│   │   │   ├── login/page.tsx
+│   │   │   └── register/page.tsx
+│   │   ├── <span class="dir">dashboard/</span>                 <span class="comment"># Role-based dashboards</span>
+│   │   │   ├── <span class="dir">parent/</span>
+│   │   │   ├── <span class="dir">teacher/</span>
+│   │   │   ├── <span class="dir">student/</span>
+│   │   │   ├── <span class="dir">operations/</span>
+│   │   │   ├── <span class="dir">finance/</span>
+│   │   │   ├── <span class="dir">les-qa/</span>
+│   │   │   ├── <span class="dir">admin/</span>
+│   │   │   └── <span class="dir">super-admin/</span>
+│   │   └── <span class="dir">api/</span>                       <span class="comment"># Route handlers</span>
+│   │       ├── <span class="dir">auth/</span>
+│   │       ├── <span class="dir">sessions/</span>
+│   │       ├── <span class="dir">classroom/</span>
+│   │       ├── <span class="dir">calls/</span>
+│   │       ├── <span class="dir">reports/</span>
+│   │       ├── <span class="dir">resources/</span>
+│   │       └── <span class="dir">webhooks/</span>                <span class="comment"># LiveKit + Twilio webhooks</span>
+│   ├── <span class="dir">lib/</span>
+│   │   ├── <span class="dir">services/</span>                  <span class="comment"># Business logic layer</span>
+│   │   │   ├── auth.service.ts
+│   │   │   ├── schedule.service.ts
+│   │   │   ├── classroom.service.ts
+│   │   │   ├── masked-call.service.ts
+│   │   │   ├── billing.service.ts
+│   │   │   ├── payroll.service.ts
+│   │   │   ├── report.service.ts
+│   │   │   ├── notification.service.ts
+│   │   │   └── resource.service.ts
+│   │   ├── <span class="dir">jobs/</span>                      <span class="comment"># BullMQ job processors</span>
+│   │   │   ├── reminder.job.ts
+│   │   │   ├── screenshot.job.ts
+│   │   │   ├── cleanup.job.ts
+│   │   │   └── report-send.job.ts
+│   │   ├── prisma.ts                   <span class="comment"># Tenant-aware Prisma client</span>
+│   │   ├── auth.config.ts              <span class="comment"># NextAuth configuration</span>
+│   │   ├── livekit.ts                  <span class="comment"># LiveKit abstraction layer</span>
+│   │   ├── twilio.ts                   <span class="comment"># Twilio abstraction</span>
+│   │   ├── email.ts                    <span class="comment"># SendGrid wrapper</span>
+│   │   └── permissions.ts              <span class="comment"># RBAC utility functions</span>
+│   ├── <span class="dir">components/</span>                  <span class="comment"># Shared UI components</span>
+│   │   ├── <span class="dir">classroom/</span>
+│   │   │   ├── live-video.tsx          <span class="comment"># LiveKit player component</span>
+│   │   │   ├── whiteboard.tsx          <span class="comment"># Interactive whiteboard</span>
+│   │   │   ├── screen-share.tsx
+│   │   │   └── chat.tsx
+│   │   ├── <span class="dir">scheduling/</span>
+│   │   │   ├── calendar-view.tsx
+│   │   │   └── availability-grid.tsx
+│   │   └── <span class="dir">reports/</span>
+│   │       └── report-form.tsx
+│   └── <span class="dir">types/</span>                       <span class="comment"># TypeScript type definitions</span>
+├── <span class="dir">prisma/</span>
+│   ├── schema.prisma
+│   └── seed.ts
+├── <span class="dir">public/</span>
+├── middleware.ts                       <span class="comment"># Auth + role route protection</span>
+├── next.config.ts
+├── tailwind.config.ts
+├── docker-compose.yml                  <span class="comment"># LiveKit + Postgres + Redis</span>
+└── package.json</pre>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ KEY SYSTEMS ═══════════════ -->
+<h2 id="livekit">Key System: LiveKit Integration</h2>
+
+<div class="card">
+  <h4>Abstraction Layer</h4>
+  <pre>// lib/livekit.ts
+import { AccessToken, RoomServiceClient } from 'livekit-server-sdk';
+
+const LIVEKIT_CONFIG = {
+  url: process.env.LIVEKIT_URL,
+  apiKey: process.env.LIVEKIT_API_KEY,
+  apiSecret: process.env.LIVEKIT_API_SECRET,
+};
+
+const roomClient = new RoomServiceClient(
+  LIVEKIT_CONFIG.url, LIVEKIT_CONFIG.apiKey, LIVEKIT_CONFIG.apiSecret
+);
+
+export function createRoomToken(roomName: string, userId: string, isObserver = false) {
+  const token = new AccessToken(LIVEKIT_CONFIG.apiKey, LIVEKIT_CONFIG.apiSecret, {
+    identity: userId, ttl: '4h',
+  });
+  token.addGrant({ roomJoin: true, room: roomName, canPublish: !isObserver, canSubscribe: true });
+  return token.toJwt();
+}
+
+export { roomClient };</pre>
+
+  <h4>Silent Observer Flow</h4>
+  <ol>
+    <li>LES clicks "Observe" on a live session from QA dashboard</li>
+    <li>API calls <code>createRoomToken(roomName, lesUserId, isObserver=true)</code></li>
+    <li>Token grants <code>canPublish: false</code> — LES can see/hear but not transmit</li>
+    <li>LES joins the room invisibly — no participant notification</li>
+  </ol>
+
+  <h4>Attendance Tracking</h4>
+  <ol>
+    <li>LiveKit webhook fires on <code>participant_joined</code> and <code>participant_left</code></li>
+    <li>Webhook handler at <code>/api/webhooks/livekit</code> validates signature</li>
+    <li>Inserts row into <code>attendance_logs</code> with timestamps</li>
+    <li>If join time > 5 min after session start → <code>is_late = true</code></li>
+    <li>If no join within 15 min → BullMQ job marks session as <code>no_show</code></li>
+  </ol>
+</div>
+
+<h2 id="scheduling">Key System: Scheduling Engine</h2>
+
+<div class="card">
+  <h4>Timezone Handling</h4>
+  <ul>
+    <li>All times stored in UTC in the database</li>
+    <li>User's timezone detected from <code>Intl.DateTimeFormat().resolvedOptions().timeZone</code></li>
+    <li>Conversion happens at the presentation layer: <code>dayjs.utc(dbTime).tz(userTimezone)</code></li>
+    <li>Scheduling UI shows both scheduler's and student's timezone side by side</li>
+  </ul>
+
+  <h4>Conflict Detection Algorithm</h4>
+  <pre>// lib/services/schedule.service.ts
+async function hasConflict(tutorId: string, startTime: Date, endTime: Date, excludeId?: string) {
+  const overlapping = await prisma.sessions.findFirst({
+    where: {
+      tutor_id: tutorId,
+      status: { in: ['scheduled', 'live'] },
+      id: { not: excludeId },
+      AND: [
+        { start_time: { lt: endTime } },
+        { end_time: { gt: startTime } }
+      ]
+    }
+  });
+  return !!overlapping;
+}</pre>
+
+  <h4>Recurring Sessions</h4>
+  <ul>
+    <li>Store <code>recurrence_rule</code> as RFC 5545 RRULE string (e.g., <code>FREQ=WEEKLY;BYDAY=MO,WE;COUNT=12</code>)</li>
+    <li>Generate concrete session instances for the next 4 weeks</li>
+    <li>Cron job generates new instances weekly for the next rolling window</li>
+  </ul>
+</div>
+
+<h2 id="billing">Key System: Billing Architecture (Architected, Not in MVP)</h2>
+
+<div class="card" style="border-left: 4px solid var(--warning);">
+  <p><strong>Note:</strong> Billing is architected but deferred to post-MVP. The schema and service layer are designed to support it, but the UI and payment flow are not implemented in MVP.</p>
+
+  <h4>Invoice Generation (Future)</h4>
+  <ol>
+    <li>Cron job runs on billing date (e.g., 25th of each month)</li>
+    <li>Queries all active students with sessions in the upcoming month</li>
+    <li>Calculates proration credits from previous month's missed/cancelled classes</li>
+    <li>Generates invoice PDF via Puppeteer HTML-to-PDF</li>
+    <li>Emails invoice to parent via SendGrid</li>
+  </ol>
+</div>
+
+<h2 id="notifications">Key System: Notification Pipeline</h2>
+
+<div class="card">
+  <h4>Multi-Channel Delivery</h4>
+  <pre>// lib/services/notification.service.ts
+async function sendNotification(userId: string, template: string, data: Record<string, any>) {
+  const user = await prisma.users.findUnique({ where: { id: userId } });
+  const prefs = await getUserPreferences(userId);
+
+  const jobs = [];
+  if (prefs.email_opt_in)  jobs.push(emailQueue.add('send', { to: user.email, template, data }));
+  if (prefs.sms_opt_in)    jobs.push(smsQueue.add('send', { to: user.phone, template, data }));
+  if (prefs.whatsapp_opt_in) jobs.push(whatsappQueue.add('send', { to: user.phone, template, data }));
+
+  await Promise.all(jobs);
+}</pre>
+
+  <h4>Job Queues</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Queue</th><th>Job Type</th><th>Schedule</th></tr></thead>
+      <tbody>
+        <tr><td>reminders</td><td>Class reminder (email/SMS/WhatsApp)</td><td>15 min before session start</td></tr>
+        <tr><td>screenshots</td><td>Capture tutor screen frame</td><td>Every 10 min during active sessions</td></tr>
+        <tr><td>cleanup</td><td>Delete old screenshots + call recordings</td><td>Daily (files > 7 days old)</td></tr>
+        <tr><td>reports</td><td>Auto-send approved reports to parents</td><td>On approval event</td></tr>
+        <tr><td>invoices</td><td>Generate monthly invoices (V2)</td><td>25th of each month</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h2 id="reports">Key System: Reports</h2>
+
+<div class="card">
+  <h4>Report Lifecycle</h4>
+  <ol>
+    <li><strong>Draft:</strong> Tutor creates report after assessment session. Form pre-fills student info, subject, and topics from session data.</li>
+    <li><strong>Submitted:</strong> Tutor submits for review. LES sees report in pending queue.</li>
+    <li><strong>Approved:</strong> LES reviews and approves. Report is locked from editing. BullMQ job triggers auto-send to parent via SendGrid. Parent can also access from dashboard.</li>
+    <li><strong>Rejected:</strong> LES returns report to tutor with feedback for revision.</li>
+  </ol>
+
+  <h4>PDF Generation</h4>
+  <pre>// lib/services/report.service.ts
+import puppeteer from 'puppeteer';
+
+async function generateReportPDF(report: Report) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+  const html = renderReportTemplate(report); // React renderToString
+  await page.setContent(html);
+  const pdf = await page.pdf({ format: 'A4', printBackground: true });
+  await browser.close();
+  return pdf;
+}</pre>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ DEPLOYMENT ═══════════════ -->
+<h2 id="deployment">Deployment Strategy</h2>
+
+<div class="card">
+  <h4>Environment Matrix</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Environment</th><th>Purpose</th><th>Infra</th></tr></thead>
+      <tbody>
+        <tr><td>Development</td><td>Local dev with hot reload</td><td>Docker Compose (Postgres + Redis + LiveKit dev server)</td></tr>
+        <tr><td>Staging</td><td>Pre-production testing</td><td>Hetzner VPS or Oracle Cloud free tier</td></tr>
+        <tr><td>Production</td><td>Live platform</td><td>Hetzner VPS (2 servers: App + LiveKit SFU)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Docker Compose (Dev)</h4>
+  <pre>version: '3.8'
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: tutorszone
+      POSTGRES_PASSWORD: dev_only
+      POSTGRES_DB: tutorszone_dev
+    ports: ["5432:5432"]
+    volumes: ["./docker-data/postgres:/var/lib/postgresql/data"]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+
+  livekit:
+    image: livekit/livekit-server
+    ports: ["7880:7880", "7881:7881", "7882:7882/udp"]
+    command: --config /etc/livekit.yaml --dev
+    volumes: ["./livekit.dev.yaml:/etc/livekit.yaml"]</pre>
+
+  <h4>CI/CD Pipeline</h4>
+  <ol>
+    <li><strong>Git push → GitHub Actions:</strong> Lint + typecheck + test on every push</li>
+    <li><strong>PR to main:</strong> Full test suite + build check</li>
+    <li><strong>Merge to main:</strong> Build Docker image → push to registry → deploy to production</li>
+  </ol>
+</div>
+
+<h2 id="monitoring">Monitoring & Logging</h2>
+
+<div class="card">
+  <ul>
+    <li><strong>Uptime Kuma:</strong> Self-hosted health checks on app, API, and LiveKit server</li>
+    <li><strong>Database backups:</strong> Daily <code>pg_dump</code> cron job, stored locally + remote copy</li>
+    <li><strong>Error tracking:</strong> <code>try/catch</code> with structured logging to <code>audit_logs</code> table for critical operations</li>
+    <li><strong>LiveKit monitoring:</strong> Room count, participant count, bandwidth via LiveKit server metrics</li>
+    <li><strong>BullMQ dashboard:</strong> Built-in Bull Board for queue monitoring (admin-only)</li>
+  </ul>
+</div>
+
+<div class="section-divider"></div>
+
+<!-- ═══════════════ SECURITY ═══════════════ -->
+<h2 id="security">Security Considerations</h2>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Area</th><th>Implementation</th></tr></thead>
+    <tbody>
+      <tr><td>Authentication</td><td>bcrypt password hashing (12 rounds). JWT with 24h expiry. HTTP-only cookies.</td></tr>
+      <tr><td>Authorization</td><td>Double-check: middleware (route-level) + service layer (action-level). Never trust client-side role alone.</td></tr>
+      <tr><td>Multi-Tenant Isolation</td><td>Prisma middleware injects <code>tenant_id</code> on every query. Row-Level Security as backup.</td></tr>
+      <tr><td>Data Encryption</td><td>TLS 1.3 in transit. AES-256 for sensitive fields at rest (parent phone numbers).</td></tr>
+      <tr><td>Input Validation</td><td>Zod schemas on every API route. Sanitize all user-generated content before storage.</td></tr>
+      <tr><td>Rate Limiting</td><td>Redis-based rate limiter on auth endpoints (5 attempts/minute).</td></tr>
+      <tr><td>Webhook Verification</td><td>LiveKit and Twilio webhooks validated by signature before processing.</td></tr>
+      <tr><td>File Uploads</td><td>Size limits (10MB). MIME type validation. Virus scanning (V2).</td></tr>
+      <tr><td>Audit Trail</td><td>All sensitive actions logged to <code>audit_logs</code> (append-only, no delete from UI).</td></tr>
+      <tr><td>CORS</td><td>Strict origin whitelist. API routes only accessible from same origin.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div style="margin-top: 3rem; padding: 1.5rem; background: var(--surface); border-radius: 10px; border: 1px solid var(--border);">
+  <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+    <strong>Document:</strong> Tutorszone — Technical Implementation Plan<br>
+    <strong>Prepared by:</strong> Caltech Innovations<br>
+    <strong>Status:</strong> Draft v1.0<br>
+    <strong>Confidentiality:</strong> This document is confidential and may not be shared with third parties without written consent.<br>
+    <strong>Related:</strong> PRD-Tutorszone.md | Tutorszone-MVP-Core5.html (MVP Features & Pricing)
+  </p>
+</div>
+
+</main>
+</div>
+
+</div><!-- end doc-content -->
+
+<script>
+function checkPassword() {
+  var input = document.getElementById('doc-password');
+  var error = document.getElementById('lock-error');
+  if (input.value === '45hrj75FG') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('doc-content').classList.add('visible');
+    error.textContent = '';
+  } else {
+    error.textContent = 'Invalid password. Please try again.';
+    input.value = '';
+    input.focus();
+  }
+}
+document.getElementById('doc-password').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
+</script>
+</body>
+</html>
