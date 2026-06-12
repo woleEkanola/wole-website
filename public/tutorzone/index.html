@@ -69,6 +69,7 @@
   .c3 .card-number { background: #059669; }
   .c4 .card-number { background: #d97706; }
   .c5 .card-number { background: #dc2626; }
+  .c6 .card-number { background: #8b5cf6; }
 
   .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
   .badge.mvp { background: var(--success-light); color: var(--success); }
@@ -266,6 +267,7 @@
     <a href="#f3">3. Masked Calling</a>
     <a href="#f4">4. Scheduling System</a>
     <a href="#f5">5. Tutor Screen Monitoring</a>
+    <a href="#f6">6. Reports System</a>
   </div>
 
   <div class="nav-group">
@@ -293,12 +295,12 @@
 
 <h1 id="overview">Tutorszone <span>MVP</span></h1>
 <p class="page-desc">
-  The 6 core features for MVP, key architectural decisions, and the infrastructure stack — designed to switch between self-hosted LiveKit and LiveKit Cloud.
+  The 7 core features for MVP, key architectural decisions, and the infrastructure stack — designed to switch between self-hosted LiveKit and LiveKit Cloud.
 </p>
 
 <div class="metrics-row" id="metrics">
   <div class="metric-card">
-    <div class="metric-value">6</div>
+    <div class="metric-value">7</div>
     <div class="metric-label">Core Features</div>
   </div>
   <div class="metric-card">
@@ -325,7 +327,7 @@
     <div class="card-number">0</div>
     <div>
       <div class="card-title">Teacher Self-Onboarding & Dashboard</div>
-      <div class="card-subtitle">Staff-created account → profile setup → availability → earnings view → teaching tools</div>
+      <div class="card-subtitle">Staff-created account → profile setup → availability → teaching resources → virtual background → earnings → teaching tools</div>
     </div>
   </div>
 
@@ -371,6 +373,14 @@
       Teacher can request reschedule for upcoming classes. Select alternative slot (shows availability), provide reason. Sent to Operations for approval.
     </div>
     <div class="feature-item">
+      <strong>Teaching Resources</strong>
+      Teachers can upload teaching resources: videos, links, PDFs, screenshots, and other materials. Admin/LES can view all uploaded resources across all tutors for quality oversight.
+    </div>
+    <div class="feature-item">
+      <strong>Virtual Background</strong>
+      Fixed Tutorszone virtual background available for all teacher class sessions. Ensures professional and consistent appearance.
+    </div>
+    <div class="feature-item">
       <strong>Performance Indicators</strong>
       Red/amber/green indicators based on attendance, punctuality, parent ratings, and lesson note completion.
     </div>
@@ -388,6 +398,8 @@
         <tr><td>Lesson Notes</td><td>Outstanding notes count, submission form, history</td><td>Teacher only</td></tr>
         <tr><td>Reschedule</td><td>Request form, status tracking (pending/approved/rejected)</td><td>Teacher only</td></tr>
         <tr><td>Performance</td><td>Red/amber/green indicators, attendance rate, rating average</td><td>Teacher only</td></tr>
+        <tr><td>Teaching Resources</td><td>Upload videos, links, PDFs, screenshots; resource library</td><td>Teacher (own) / Admin & LES (all)</td></tr>
+        <tr><td>Virtual Background</td><td>Fixed Tutorszone background for all class sessions</td><td>Teacher (applied automatically)</td></tr>
       </tbody>
     </table>
   </div>
@@ -407,6 +419,9 @@
         <tr><td>F-TO-08</td><td>Lesson note submission (topics, performance, homework, next focus)</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-TO-09</td><td>Reschedule request workflow (select slot, reason, approval by Operations)</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-TO-10</td><td>Performance indicators (red/amber/green) for attendance, ratings, punctuality</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-11</td><td>Teachers can upload teaching resources (videos, links, PDFs, screenshots)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-12</td><td>Admin/LES can view all teaching resources uploaded by all tutors</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-TO-13</td><td>Fixed Tutorszone virtual background for all teacher class sessions</td><td><span class="badge mvp">MVP</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -418,7 +433,7 @@
     <div class="card-number">1</div>
     <div>
       <div class="card-title">Parent Self-Registration & Onboarding</div>
-      <div class="card-subtitle">Public signup → pricing selection → student account creation → welcome email</div>
+      <div class="card-subtitle">Public signup → pricing selection → student account creation → admin tutor assignment → welcome email</div>
     </div>
   </div>
 
@@ -442,6 +457,10 @@
     <div class="feature-item">
       <strong>Auto Student Account</strong>
       Student account automatically created when parent registers a child. Linked accounts from day one.
+    </div>
+    <div class="feature-item">
+      <strong>Admin Tutor Assignment</strong>
+      After registration, Admin/LES reviews the student profile and assigns an appropriate tutor based on subject, grade level, availability, and tutor expertise. Parents do not select tutors during onboarding.
     </div>
     <div class="feature-item">
       <strong>Multi-Child Support</strong>
@@ -471,6 +490,8 @@
     <div class="flow-arrow">→</div>
     <div class="flow-step">Student Created<br><small>Auto-linked</small></div>
     <div class="flow-arrow">→</div>
+    <div class="flow-step">Admin Assigns Tutor<br><small>Based on fit</small></div>
+    <div class="flow-arrow">→</div>
     <div class="flow-step">Welcome<br><small>Credentials sent</small></div>
   </div>
 
@@ -498,12 +519,12 @@
     <div class="card-number">2</div>
     <div>
       <div class="card-title">Live Classroom (Built-In)</div>
-      <div class="card-subtitle">LiveKit (self-hosted or cloud) → embedded video → screen share → silent observer → attendance</div>
+      <div class="card-subtitle">LiveKit → embedded video → bidirectional screen sharing → whiteboard → emoji chat → virtual background → silent observer</div>
     </div>
   </div>
 
   <h4>What It Does</h4>
-  <p>Embedded live video classroom powered by LiveKit. Supports switching between self-hosted LiveKit (Apache 2.0) and LiveKit Cloud via configuration. Supports 1-on-1 and group sessions with screen sharing, chat, mute/hand-raise, and silent observer mode for the Learning Experience Specialist (QA). Attendance tracked automatically via LiveKit's participant events API.</p>
+  <p>Embedded live video classroom powered by LiveKit. Supports switching between self-hosted LiveKit (Apache 2.0) and LiveKit Cloud via configuration. Supports 1-on-1 and group sessions with bidirectional screen sharing (both tutor and students), interactive whiteboard for writing letters, mathematical expressions, equations and diagrams, emoji support in chat, fixed Tutorszone virtual background for tutors, mute/hand-raise, and silent observer mode for the Learning Experience Specialist (QA). Attendance tracked automatically via LiveKit's participant events API.</p>
 
   <h4>LiveKit: Self-Hosted vs Cloud</h4>
   <div class="switch-diagram">
@@ -543,8 +564,8 @@
       LiveKit rooms embedded directly in the platform via React SDK. No external app download needed.
     </div>
     <div class="feature-item">
-      <strong>Screen Sharing</strong>
-      Tutor shares their screen for teaching. Students view in real-time.
+      <strong>Screen Sharing (Both)</strong>
+      Both tutors and students can share their screens during lessons. Tutor shares teaching content; students share their work for review and demonstration.
     </div>
     <div class="feature-item">
       <strong>Silent Observer</strong>
@@ -561,6 +582,18 @@
     <div class="feature-item">
       <strong>Mute / Hand Raise</strong>
       Students can mute/unmute and raise hand during class.
+    </div>
+    <div class="feature-item">
+      <strong>Interactive Whiteboard</strong>
+      Tutors and students can write letters, mathematical expressions, equations, and draw diagrams directly on screen during sessions. Built-in drawing and annotation tools for collaborative learning.
+    </div>
+    <div class="feature-item">
+      <strong>Emoji Support</strong>
+      Tutors and students can use emojis in chat and messages during live classes.
+    </div>
+    <div class="feature-item">
+      <strong>Virtual Background</strong>
+      Fixed Tutorszone virtual background available for all tutor sessions. Ensures professional and consistent appearance across all classes.
     </div>
     <div class="feature-item">
       <strong>Join via Link</strong>
@@ -600,6 +633,10 @@
         <tr><td>F-LC-08</td><td>Join via link from dashboard (active 10 min before)</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-LC-09</td><td>Late arrival tracking with timestamp</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-LC-10</td><td>Configuration-based switching between self-hosted and cloud</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-11</td><td>Interactive whiteboard: write letters, math expressions, equations, and draw diagrams</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-12</td><td>Emoji support in chat and messages for tutors and students</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-13</td><td>Fixed Tutorszone virtual background for all tutor sessions</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-LC-14</td><td>Student screen sharing: students can share their screen during lessons</td><td><span class="badge mvp">MVP</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -706,7 +743,7 @@
   <div class="feature-grid">
     <div class="feature-item">
       <strong>Timezone Engine</strong>
-      All times stored in UTC, displayed in each user's local timezone. Scheduler sees student's timezone alongside their own.
+      All times stored in UTC, displayed in each user's local timezone. Automatic timezone detection based on browser/device settings. Scheduler sees student's timezone alongside their own. Time zone changes handled automatically.
     </div>
     <div class="feature-item">
       <strong>Tutor Availability</strong>
@@ -731,6 +768,10 @@
     <div class="feature-item">
       <strong>Reschedule Workflow</strong>
       Teacher or parent requests reschedule → Operations approves → conflict check → all parties notified.
+    </div>
+    <div class="feature-item">
+      <strong>Class Reassignment</strong>
+      Admin/Scheduling officer can reassign classes when a tutor is unavailable or when a student needs to be moved to another tutor. Emergency substitution workflow with conflict detection and automated notification to all affected parties.
     </div>
     <div class="feature-item">
       <strong>No-Show Management</strong>
@@ -766,6 +807,8 @@
         <tr><td>F-SCH-08</td><td>No-show/missed class detection and management</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-SCH-09</td><td>Emergency substitution workflow (swap tutors)</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-SCH-10</td><td>Scheduling audit log (who created/modified/cancelled)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-11</td><td>Automatic timezone detection from browser/device settings</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SCH-12</td><td>Class reassignment: Admin can transfer student to another tutor when tutor is unavailable</td><td><span class="badge mvp">MVP</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -777,7 +820,7 @@
     <div class="card-number">5</div>
     <div>
       <div class="card-title">Tutor Screen Monitoring</div>
-      <div class="card-subtitle">Auto-screenshot every 10 min → timeline view for LES → deleted after 7 days</div>
+      <div class="card-subtitle">Auto-screenshot every 10 min → timeline view for LES → Admin/LES view all teaching resources → deleted after 7 days</div>
     </div>
   </div>
 
@@ -821,6 +864,10 @@
       <strong>Transparency Notice</strong>
       Tutors are notified that screen monitoring is active during sessions (shown in classroom UI).
     </div>
+    <div class="feature-item">
+      <strong>Teaching Resources Visibility</strong>
+      Admin/LES can view all teaching resources (videos, links, PDFs, screenshots) uploaded by tutors across all sessions. Centralized resource library for quality oversight and compliance.
+    </div>
   </div>
 
   <h4>Screenshot Capture Flow</h4>
@@ -849,6 +896,125 @@
         <tr><td>F-SM-06</td><td>Tutors notified that monitoring is active during sessions</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-SM-07</td><td>Screenshots used to verify: lighting, background, uniform, professionalism, content</td><td><span class="badge mvp">MVP</span></td></tr>
         <tr><td>F-SM-08</td><td>Timeline view shows thumbnails with timestamps for easy navigation</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-SM-09</td><td>Admin/LES can view all teaching resources (videos, links, PDFs, screenshots) uploaded by tutors</td><td><span class="badge mvp">MVP</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── FEATURE 6: REPORTS SYSTEM ─── -->
+<div class="card c6" id="f6">
+  <div class="card-header">
+    <div class="card-number">6</div>
+    <div>
+      <div class="card-title">Reports System</div>
+      <div class="card-subtitle">Initial Assessment → Monthly Reports → Quarterly Reports → auto-send to parents → parent dashboard access</div>
+    </div>
+  </div>
+
+  <h4>What It Does</h4>
+  <p>Automated report generation and delivery system. Tutors compile assessment reports that are reviewed and approved by LES/Admin. Once approved, reports are automatically sent to parents. Parents can access all past reports from their dashboard. Three report types are supported: Initial Assessment Report (after student's first assessment), Monthly Reports, and Quarterly Assessment Reports.</p>
+
+  <h4>Report Types</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Report Type</th><th>Frequency</th><th>Trigger</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Initial Assessment Report</strong></td><td>Once per student</td><td>After the student's first assessment is completed and approved</td><td>Baseline evaluation: current level, strengths, areas for improvement, recommended learning path</td></tr>
+        <tr><td><strong>Monthly Report</strong></td><td>Monthly</td><td>End of each calendar month, after approval</td><td>Topics covered, score (%), level of understanding, continuation topics, tutor's comments</td></tr>
+        <tr><td><strong>Quarterly Assessment Report</strong></td><td>Every 3 months</td><td>End of each quarter (March, June, September, December)</td><td>Comprehensive assessment: full topic coverage, detailed score breakdown, progress trends, tutor evaluation, continuation plan</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Report Data Structure</h4>
+  <p>Each report contains the following fields (based on sample report format provided):</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Description</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Parent Name</td><td>Name of the parent/guardian</td><td>System (parent profile)</td></tr>
+        <tr><td>Parent Email</td><td>Email address for report delivery</td><td>System (parent profile)</td></tr>
+        <tr><td>Student Name</td><td>Name of the student</td><td>System (student profile)</td></tr>
+        <tr><td>Report Type</td><td>Initial / Monthly / Quarterly</td><td>System (auto-generated)</td></tr>
+        <tr><td>Month</td><td>Reporting month</td><td>System (auto-generated)</td></tr>
+        <tr><td>Year</td><td>Reporting year</td><td>System (auto-generated)</td></tr>
+        <tr><td>Class</td><td>Grade level (e.g., Grade 5, Kindergarten)</td><td>System (student profile)</td></tr>
+        <tr><td>Subject(s)</td><td>Subject(s) covered in the report</td><td>System (session data)</td></tr>
+        <tr><td>Score (%)</td><td>Assessment score as percentage</td><td>Teacher input</td></tr>
+        <tr><td>Tutor's Name</td><td>Name of the delivering tutor</td><td>System (session data)</td></tr>
+        <tr><td>Topics Covered</td><td>List of topics taught during the period</td><td>Teacher input</td></tr>
+        <tr><td>Level of Understanding</td><td>Excellent / Very Good / Good / Fair / Needs Improvement</td><td>Teacher input (dropdown)</td></tr>
+        <tr><td>Continuation Required</td><td>Yes / No — whether topics need continued focus</td><td>Teacher input</td></tr>
+        <tr><td>Continuation Topics</td><td>Topics requiring continued focus</td><td>Teacher input (if applicable)</td></tr>
+        <tr><td>Tutor's Comment</td><td>Detailed feedback and observations</td><td>Teacher input (free text)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Feature Breakdown</h4>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <strong>Report Creation</strong>
+      Tutor compiles assessment report after each assessment period. Form pre-filled with student info, subject, and topics from session data. Tutor enters score, understanding level, continuation status, topics, and detailed comment.
+    </div>
+    <div class="feature-item">
+      <strong>Approval Workflow</strong>
+      Submitted reports go to LES/Admin for review and approval. LES validates scores, comments, and recommendations. Approved reports are locked from further editing.
+    </div>
+    <div class="feature-item">
+      <strong>Auto-Send to Parents</strong>
+      Once a report is approved, the system automatically sends it to the parent via email. Initial Assessment Reports, Monthly Reports, and Quarterly Reports all follow this auto-send workflow.
+    </div>
+    <div class="feature-item">
+      <strong>Past Reports Access</strong>
+      Parents can access all past reports from their dashboard. Organized by child, report type, and date. Downloadable as PDF. Full history maintained per student.
+    </div>
+    <div class="feature-item">
+      <strong>Quarterly Rollup</strong>
+      At the end of each quarter (March, June, September, December), the system compiles all monthly data into a comprehensive Quarterly Assessment Report with trend analysis.
+    </div>
+    <div class="feature-item">
+      <strong>Initial Assessment</strong>
+      First assessment conducted shortly after a student is assigned a tutor. Establishes baseline for measuring progress. Automatically generated after the first assessment session is completed.
+    </div>
+    <div class="feature-item">
+      <strong>Report Status Tracking</strong>
+      Dashboard indicators show report status: Draft (tutor working), Submitted (pending review), Approved (sent to parent), Rejected (returned for revision). Tutors see outstanding report count on their dashboard.
+    </div>
+    <div class="feature-item">
+      <strong>Download & Export</strong>
+      Parents can download individual reports as PDF. Admin can bulk export reports (CSV/PDF) for compliance, audit, or offline records.
+    </div>
+  </div>
+
+  <h4>Report Flow</h4>
+  <div class="flow">
+    <div class="flow-step">Assessment<br><small>Conducted by tutor</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Tutor Compiles<br><small>Fills report form</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Submit for Review<br><small>Sent to LES/Admin</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">LES/Admin Approves<br><small>Or returns for revision</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Auto-Send<br><small>Email to parent</small></div>
+  </div>
+
+  <h4>Key Requirements</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>ID</th><th>Requirement</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>F-RPT-01</td><td>Tutor can create assessment reports with all required fields (score, understanding level, topics, comments)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-02</td><td>LES/Admin approval workflow: review, approve, or return reports for revision</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-03</td><td>Auto-send Initial Assessment Report to parents once completed and approved</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-04</td><td>Auto-send Monthly Report to parents once completed and approved</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-05</td><td>Auto-send Quarterly Assessment Report to parents once completed and approved</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-06</td><td>Parents can access all past reports from their dashboard, organized by child and date</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-07</td><td>Reports support all fields from the sample report format (parent name, student name, class, subject, score, tutor name, topics, understanding level, continuation, comments)</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-08</td><td>Report status tracking: Draft, Submitted, Approved, Rejected</td><td><span class="badge mvp">MVP</span></td></tr>
+        <tr><td>F-RPT-09</td><td>Parents can download reports as PDF</td><td><span class="badge mvp">MVP</span></td></tr>
       </tbody>
     </table>
   </div>
@@ -1308,12 +1474,13 @@ EXTERNAL SERVICES (API-based, not self-hosted):
         <td style="font-weight: 700;">3 months</td>
         <td>
           <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.85rem;">
-            <li>Teacher self-onboarding & dashboard</li>
-            <li>Parent self-registration & onboarding</li>
-            <li>Live classroom (LiveKit integration)</li>
+            <li>Teacher self-onboarding & dashboard (incl. teaching resources, virtual background)</li>
+            <li>Parent self-registration & onboarding (admin tutor assignment)</li>
+            <li>Live classroom (bidirectional screen sharing, whiteboard, emoji, virtual bg)</li>
             <li>Masked calling with recording</li>
-            <li>Scheduling system (timezone-aware)</li>
-            <li>Tutor screen monitoring</li>
+            <li>Scheduling system (timezone-aware, auto timezone detection, class reassignment)</li>
+            <li>Tutor screen monitoring (incl. teaching resources visibility)</li>
+            <li>Reports system (initial, monthly, quarterly with auto-send and parent access)</li>
             <li>Role-based dashboards (9 roles)</li>
             <li>Infrastructure setup (self-hosted or cloud)</li>
           </ul>
@@ -1345,7 +1512,7 @@ EXTERNAL SERVICES (API-based, not self-hosted):
 <div class="card" style="border-left: 4px solid var(--warning);">
   <h4 style="margin-top: 0; color: var(--warning);">What's Included</h4>
   <ul>
-    <li>Full MVP development (6 core features as specified)</li>
+    <li>Full MVP development (7 core features as specified)</li>
     <li>Infrastructure setup and configuration (self-hosted or cloud)</li>
     <li>Deployment to production environment</li>
     <li>3 months active post-launch support</li>
@@ -1356,7 +1523,7 @@ EXTERNAL SERVICES (API-based, not self-hosted):
   <ul>
     <li>Ongoing infrastructure costs (server hosting, Twilio, SendGrid, etc.)</li>
     <li>Third-party API costs (Twilio, LiveKit Cloud if used, etc.)</li>
-    <li>Features beyond the 6 core MVP features</li>
+    <li>Features beyond the 7 core MVP features</li>
     <li>Mobile app development (iOS/Android)</li>
     <li>Support beyond the 3-month active support period</li>
   </ul>
