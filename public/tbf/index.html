@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Mobilization Strategy: March of Silence</title>
+    <style>
+        :root {
+            --primary-color: #064e3b; /* TecHill Deep Green */
+            --secondary-color: #0d9488; /* Teal Accent */
+            --accent-color: #10b981;
+            --text-color: #1f2937;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 40px 30px;
+            position: relative;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 15px;
+        }
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        /* Tab System */
+        .tabs {
+            display: flex;
+            background-color: #e5e7eb;
+            overflow-x: auto;
+        }
+        .tab-button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 16px 24px;
+            transition: 0.3s;
+            font-size: 15px;
+            font-weight: 600;
+            color: #4b5563;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-button:hover {
+            color: var(--primary-color);
+            background-color: #d1d5db;
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            background-color: var(--card-bg);
+            border-bottom: 3px solid var(--secondary-color);
+        }
+        .tab-content {
+            display: none;
+            padding: 40px 30px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Inner Content Styling */
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 25px;
+        }
+        ul, ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .callout {
+            background-color: #ecfdf5;
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .callout-tech {
+            background-color: #f1f5f9;
+            border-left: 4px solid #475569;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.95em;
+        }
+        .badge {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-top">
+            <div><strong>From:</strong> TecHill </div>
+            <div><strong>To:</strong> Tunji Braithwaite Foundation (TBF)</div>
+        </div>
+        <h1>Digital Strategy & Mobilization</h1>
+        <p class="subtitle">March of Silence 2026: Silence for Justice. Action for Change.</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="openTab(event, 'Strategy')">Strategy & Goals</button>
+        <button class="tab-button" onclick="openTab(event, 'Avatar')">Avatar Campaign</button>
+        <button class="tab-button" onclick="openTab(event, 'Dashboard')">Justice Dashboard</button>
+        <button class="tab-button" onclick="openTab(event, 'Takeover')">D-Day Takeover</button>
+        <button class="tab-button" onclick="openTab(event, 'Timeline')">Rollout Plan</button>
+    </div>
+
+    <div id="Strategy" class="tab-content" style="display: block;">
+        <h2>Executive Summary & Strategic Goals</h2>
+        <p>The March of Silence is a flagship advocacy initiative of the Tunji Braithwaite Foundation (TBF), designed to promote human dignity and demand systemic accountability. This digital strategy brief outlines the framework to bridge online awareness with physical, on-the-ground mobilization using bespoke digital tools and strategic storytelling.</p>
+        
+        <div class="grid-2">
+            <div>
+                <h3>Core Objectives</h3>
+                <ul>
+                    <li><strong>Amplify & Educate:</strong> Position TBF’s core pillars—Access to Justice, Rule of Law, Tackling Corruption, and Good Governance—at the center of public discourse.</li>
+                    <li><strong>Drive Physical Mobilization:</strong> Convert passive online supporters into active participants using clear calls-to-action and WhatsApp communities for localized organization.</li>
+                    <li><strong>Spotlight Tangible Impact:</strong> Utilize the digital space to highlight real, ongoing legal interventions (e.g., prison visits) and high-level stakeholder engagements.</li>
+                </ul>
+            </div>
+            <div>
+                <h3>Target Audience</h3>
+                <ul>
+                    <li><strong>Primary:</strong> Young professionals, university students, human rights activists, and legal practitioners in Lagos.</li>
+                    <li><strong>Secondary:</strong> Civil society organizations, community leaders, and the broader Nigerian public invested in justice reform.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="Avatar" class="tab-content">
+        <h2>"I Am Marching" Digital Avatar Campaign</h2>
+        <p>To manufacture virality and create a sense of digital mass mobilization, we will deploy a lightweight, mobile-optimized web tool (e.g., <code>join.tbfng.org</code>).</p>
+        
+        <h3>The User Journey</h3>
+        <ol>
+            <li><strong>The Generation:</strong> Users upload a profile picture. The system automatically applies the official March of Silence branding overlay, generating a customized flyer.</li>
+            <li><strong>The Amplification:</strong> Upon downloading, users receive a "Click to Copy" pre-written caption optimized with official hashtags.</li>
+            <li><strong>The Network Effect:</strong> Users post their customized flyer to their Twitter, Instagram, or WhatsApp Status, creating social proof and driving new users back to the tool.</li>
+        </ol>
+
+        <div class="callout">
+            <strong>Pre-Written Amplification Captions:</strong>
+            <p><strong>Twitter/X:</strong> "I am marching for justice, accountability, and the rule of law in Nigeria. Join me and the Tunji Braithwaite Foundation on June 26th. We cannot be quiet anymore. Generate your flyer at join.tbfng.org 🇳🇬 #MarchOfSilence2026 #JusticeForAll"</p>
+            <p><strong>WhatsApp Status:</strong> "I'll be at the March of Silence on June 26. We are marching for human dignity and justice in Nigeria. Let's show up! ✊🏾 Create your own DP here: join.tbfng.org"</p>
+        </div>
+
+        <div class="callout-tech">
+            <strong>Technical Note:</strong> The avatar generation logic will utilize an HTML Canvas element to overlay the transparent .png frame. All image processing happens client-side in the browser, ensuring absolute user privacy and zero server latency/costs.
+        </div>
+    </div>
+
+    <div id="Dashboard" class="tab-content">
+        <h2>"Why We March" Live Justice Dashboard</h2>
+        <p>A transparent, real-time public tracker of active human rights and justice cases supported by TBF, moving the public from passive sympathy to active digital support.</p>
+        
+        <h3>Key Features</h3>
+        <ul>
+            <li><strong>The Case Cards:</strong> Clean, readable cards detailing the Victim/Subject, the Core Issue (e.g., Unlawful Detention), and Current Status (e.g., Pending DPP Advice).</li>
+            <li><strong>The "Lend Your Voice" Action:</strong> A primary action button that generates a pre-populated, targeted Tweet or email template directed at specific authorities (e.g., Lagos State Attorney General).</li>
+            <li><strong>The "Impact Meter":</strong> A live counter displaying the total number of digital actions taken by the public across all cases, creating massive momentum.</li>
+        </ul>
+
+        <div class="callout-tech">
+            <strong>Technical Architecture (TecHill Recommendation):</strong> We recommend a modern full-stack approach using a Next.js front-end paired with a PostgreSQL database managed via Prisma. This allows for rapid schema definition for case files and highly performant state management for the Impact Meter under heavy event-day traffic.
+        </div>
+    </div>
+
+    <div id="Takeover" class="tab-content">
+        <h2>"D-Day: Break the Silence" Digital Takeover</h2>
+        <p>Orchestrating a massive, synchronized digital disruption across Nigerian social media on the morning of June 26, ensuring the <strong>#MarchOfSilence2026</strong> hashtag dominates trending topics.</p>
+        
+        <div class="grid-2">
+            <div>
+                <h3>1. The Digital Call to Assembly</h3>
+                <p>In the 48 hours leading up to the event, urge online supporters to generate their customized flyers via the Avatar tool, but instruct them to hold off on posting until the designated "Action Hour."</p>
+            </div>
+            <div>
+                <h3>2. The Action Hour (9:00 AM)</h3>
+                <p>An official blast goes out across all TBF channels and WhatsApp mobilization groups: <em>"It is time to break the silence."</em></p>
+            </div>
+            <div>
+                <h3>3. The Synchronized Flood</h3>
+                <p>Thousands of online citizens simultaneously post their customized flyers. This sudden, massive influx triggers platform algorithms, pushing the march to the top of trending feeds.</p>
+            </div>
+            <div>
+                <h3>4. The Live Social Wall</h3>
+                <p>Embed a live social media aggregator on <code>join.tbfng.org</code>. As users post with the official hashtag, their content is pulled into a real-time, scrolling digital mosaic.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="Timeline" class="tab-content">
+        <h2>Phased Rollout Plan</h2>
+        
+        <div class="callout" style="border-color: #3b82f6; background-color: #eff6ff;">
+            <span class="badge" style="background-color: #3b82f6;">Phase 1: Foundation (Present – June 18)</span>
+            <p>Establish/optimize official TBF social channels. Publish long-form context on tbfng.org detailing recent advocacy efforts (prison visits, Chief Judge meetings) to serve as destination hubs.</p>
+        </div>
+
+        <div class="callout" style="border-color: #f59e0b; background-color: #fffbeb;">
+            <span class="badge" style="background-color: #f59e0b;">Phase 2: Mobilization (June 19 – June 25)</span>
+            <p>Launch "7 Days, 7 Reasons" countdown. Deploy the <strong>Avatar Campaign</strong> and <strong>Justice Dashboard</strong>. Distribute media kits to influencers. Activate WhatsApp broadcast groups.</p>
+        </div>
+
+        <div class="callout" style="border-color: #ef4444; background-color: #fef2f2;">
+            <span class="badge" style="background-color: #ef4444;">Phase 3: D-Day (June 26)</span>
+            <p>Execute the <strong>Digital Takeover</strong> at 9:00 AM. Real-time digital documentation of the physical march: crowd visuals, live placard highlights, and participant statements.</p>
+        </div>
+
+        <div class="callout" style="border-color: #8b5cf6; background-color: #f5f3ff;">
+            <span class="badge" style="background-color: #8b5cf6;">Phase 4: Sustained Impact (June 27 – July 10)</span>
+            <p>Transition from mobilization to consolidation. Publish impact statements, high-quality event recaps, and directives on staying involved with TBF.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabcontent, tabbuttons;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+</script>
+
+</body>
+</html>
