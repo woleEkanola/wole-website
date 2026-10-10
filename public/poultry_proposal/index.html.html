@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>500-Bird Layer Production Model</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            investor: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+            },
+            operator: {
+              50: '#fdf4ff',
+              100: '#fae8ff',
+              500: '#d946ef',
+              600: '#c026d3',
+              700: '#a21caf',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    input[type=range] {
+      accent-color: #059669;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #ffffff !important; color: #000000 !important; }
+      .tab-panel { display: block !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen">
+
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-brand-700 flex items-center justify-center text-white font-bold shadow-md shadow-brand-100">
+          <i data-lucide="egg" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight">500-Bird Layer Production Model</h1>
+          <p class="text-xs text-slate-500 font-medium">Commercial Feasibility &amp; 60/40 Equity Partnership Proposal</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2 sm:gap-3 no-print">
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Print Proposal</span>
+        </button>
+        <button onclick="resetDefaults()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold transition">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>Reset Base</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <!-- Tab Controls -->
+    <div class="flex items-center justify-between border-b border-slate-200 no-print overflow-x-auto pb-1">
+      <div class="flex space-x-2 sm:space-x-4">
+        <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn pb-3 px-3 text-sm font-semibold text-brand-700 border-b-2 border-brand-600 flex items-center gap-2">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Executive Dashboard
+        </button>
+        <button onclick="switchTab('partnership')" id="tab-partnership" class="tab-btn pb-3 px-3 text-sm font-semibold text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2">
+          <i data-lucide="handshake" class="w-4 h-4"></i> Partnership (60 / 40 Split)
+        </button>
+        <button onclick="switchTab('capex')" id="tab-capex" class="tab-btn pb-3 px-3 text-sm font-semibold text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2">
+          <i data-lucide="wallet" class="w-4 h-4"></i> Capital Budget (₦11.60M)
+        </button>
+        <button onclick="switchTab('operations')" id="tab-operations" class="tab-btn pb-3 px-3 text-sm font-semibold text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2">
+          <i data-lucide="calendar-check" class="w-4 h-4"></i> Lifecycle &amp; Ops Plan
+        </button>
+      </div>
+      <div class="text-xs text-slate-400 font-medium hidden md:flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Live Financial Simulator
+      </div>
+    </div>
+
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-brand-900 text-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+      <div class="space-y-2 max-w-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Controlled Commercial Layer Enterprise (500 Stock)
+        </div>
+        <h2 class="text-2xl font-bold tracking-tight text-white">500-Bird Layer Production Model</h2>
+        <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
+          Structured commercial poultry investment utilizing high-yield genetic layer stock (*ISA Brown / Lohmann Brown*) in modern galvanized battery cages. 
+          Combines fixed capital infrastructure with fully provisioned 20-week rearing and a post-lay working capital buffer.
+        </p>
+      </div>
+
+      <!-- Capital Split Indicator -->
+      <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/15 w-full lg:w-auto grid grid-cols-2 gap-4">
+        <div>
+          <span class="text-[11px] text-blue-200 uppercase font-bold tracking-wider block">Investor Capital (60%)</span>
+          <span class="text-xl sm:text-2xl font-black text-white" id="heroInvestorCap">₦8,600,000</span>
+          <span class="text-[10px] text-blue-300 block">74.1% of Capital Required</span>
+        </div>
+        <div class="border-l border-white/20 pl-4">
+          <span class="text-[11px] text-fuchsia-200 uppercase font-bold tracking-wider block">Operator Capital (40%)</span>
+          <span class="text-xl sm:text-2xl font-black text-white" id="heroOperatorCap">₦3,000,000</span>
+          <span class="text-[10px] text-fuchsia-300 block">25.9% Capital + Full Operations</span>
+        </div>
+      </div>
+    </div>
+
+    <section id="content-dashboard" class="tab-panel space-y-6">
+      
+      <!-- Top Metric Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Monthly Revenue -->
+        <div class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Gross Monthly Revenue</span>
+            <span class="p-1.5 bg-brand-50 text-brand-600 rounded-lg"><i data-lucide="circle-dollar-sign" class="w-4 h-4"></i></span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-slate-900" id="cardMonthlyRevenue">₦2,025,000</div>
+          <div class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+            <span id="cardCratesProduced">450 crates/mo</span>
+            <span class="text-brand-600 font-bold" id="cardDailyEggs">428 eggs/day</span>
+          </div>
+        </div>
+
+        <!-- Monthly Operating Costs -->
+        <div class="bg-white p-4.5 rounded-xl border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 mb-1">
+            <span class="text-xs font-semibold uppercase tracking-wider">Monthly Production OPEX</span>
+            <span class="p-1.5 bg-amber-50 text-amber-600 rounded-lg"><i data-lucide="receipt" class="w-4 h-4"></i></span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-slate-900" id="cardMonthlyOpex">₦1,240,000</div>
+          <div class="text-xs text-slate-500 mt-1 flex items-center justify-between">
+            <span id="cardFeedCostNote">Feed: ₦1,005,000</span>
+            <span class="text-amber-700 font-semibold">~67 Bags Layer Mash</span>
+          </div>
+        </div>
+
+        <!-- Net Monthly Surplus -->
+        <div class="bg-white p-4.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-xs">
+          <div class="flex items-center justify-between text-emerald-800 mb-1">
+            <span class="text-xs font-bold uppercase tracking-wider">Net Monthly Surplus</span>
+            <span class="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg"><i data-lucide="trending-up" class="w-4 h-4"></i></span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-brand-700" id="cardNetSurplus">₦785,000</div>
+          <div class="text-xs text-slate-600 mt-1 flex items-center justify-between">
+            <span>Operating Margin:</span>
+            <span class="text-emerald-700 font-bold" id="cardOperatingMargin">38.8%</span>
+          </div>
+        </div>
+
+        <!-- Investor Monthly Dividend -->
+        <div class="bg-white p-4.5 rounded-xl border border-blue-200 bg-blue-50/20 shadow-xs">
+          <div class="flex items-center justify-between text-investor-800 mb-1">
+            <span class="text-xs font-bold uppercase tracking-wider">Investor Payout (60%)</span>
+            <span class="p-1.5 bg-blue-100 text-investor-600 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4"></i></span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-investor-700" id="cardInvestorMonthly">₦471,000</div>
+          <div class="text-xs text-slate-600 mt-1 flex items-center justify-between">
+            <span id="cardOperatorMonthly">Operator (40%): ₦314,000</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Sidebar (5 cols) -->
+        <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-brand-600"></i>
+              <h3 class="font-bold text-slate-900 text-sm">Sensitivity Parameters</h3>
+            </div>
+            <span class="text-[11px] font-semibold text-slate-400">Dynamic Adjustments</span>
+          </div>
+
+          <!-- Slider: Egg Crate Price -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <label for="inputEggPrice" class="font-semibold text-slate-700">Egg Selling Price (per Crate)</label>
+              <span class="font-bold text-brand-700 text-sm" id="valEggPrice">₦4,500</span>
+            </div>
+            <input type="range" id="inputEggPrice" min="3500" max="6000" step="100" value="4500" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>₦3,500 (Pullet)</span>
+              <span>₦4,500 (Blended Default)</span>
+              <span>₦6,000 (Jumbo)</span>
+            </div>
+          </div>
+
+          <!-- Slider: Peak Laying Rate -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <label for="inputLayRate" class="font-semibold text-slate-700">Hen-Day Peak Laying Rate (%)</label>
+              <span class="font-bold text-brand-700 text-sm" id="valLayRate">90%</span>
+            </div>
+            <input type="range" id="inputLayRate" min="70" max="98" step="1" value="90" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>70% (Stressed)</span>
+              <span>90% (Industry Standard)</span>
+              <span>98% (Optimum)</span>
+            </div>
+          </div>
+
+          <!-- Slider: Layer Feed Bag Cost -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <label for="inputFeedPrice" class="font-semibold text-slate-700">Layer Feed Price (25kg Bag)</label>
+              <span class="font-bold text-amber-700 text-sm" id="valFeedPrice">₦15,000</span>
+            </div>
+            <input type="range" id="inputFeedPrice" min="12000" max="22000" step="500" value="15000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>₦12,000</span>
+              <span>₦15,000 (Base)</span>
+              <span>₦22,000 (Inflation Peak)</span>
+            </div>
+          </div>
+
+          <!-- Slider: Mortality Rate to Lay -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <label for="inputMortality" class="font-semibold text-slate-700">Rearing Mortality Rate (%)</label>
+              <span class="font-bold text-slate-800 text-sm" id="valMortality">5% (475 Hens entering lay)</span>
+            </div>
+            <input type="range" id="inputMortality" min="2" max="15" step="1" value="5" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>2% (490 hens)</span>
+              <span>5% (475 planned)</span>
+              <span>15% (425 hens)</span>
+            </div>
+          </div>
+
+          <!-- Slider: Spent Layer Bird Price -->
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <label for="inputSpentPrice" class="font-semibold text-slate-700">Spent Layer Terminal Price / Bird</label>
+              <span class="font-bold text-indigo-700 text-sm" id="valSpentPrice">₦6,000</span>
+            </div>
+            <input type="range" id="inputSpentPrice" min="4500" max="8000" step="250" value="6000" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>₦4,500</span>
+              <span>₦6,000 (Average)</span>
+              <span>₦8,000 (Festive Peak)</span>
+            </div>
+          </div>
+
+          <!-- Preset Buttons -->
+          <div class="pt-2 border-t border-slate-100">
+            <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-2">One-Click Model Presets:</label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="applyPreset('conservative')" class="p-2 rounded-lg border border-slate-200 text-left hover:border-amber-400 hover:bg-amber-50/50 transition">
+                <div class="text-xs font-bold text-amber-800">Conservative</div>
+                <div class="text-[10px] text-slate-500">₦4,200 egg / ₦17k feed</div>
+              </button>
+              <button onclick="applyPreset('expected')" class="p-2 rounded-lg border border-emerald-300 bg-emerald-50/60 text-left hover:border-emerald-500 transition">
+                <div class="text-xs font-bold text-emerald-800">Base Expected</div>
+                <div class="text-[10px] text-slate-500">₦4,500 egg / ₦15k feed</div>
+              </button>
+              <button onclick="applyPreset('strong')" class="p-2 rounded-lg border border-slate-200 text-left hover:border-emerald-400 hover:bg-emerald-50/50 transition">
+                <div class="text-xs font-bold text-emerald-800">Strong Peak</div>
+                <div class="text-[10px] text-slate-500">₦4,800 egg / ₦14.5k feed</div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual Analytics (7 cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          <!-- Monthly Waterfall Chart -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm">Monthly Operational Cash Waterfall</h3>
+                <p class="text-xs text-slate-500">Gross revenue breakdown into feed, overhead, and 60/40 profit distributions</p>
+              </div>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-600">Per Month Laying</span>
+            </div>
+            <div class="h-60 relative">
+              <canvas id="monthlyCashChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Cumulative Payback Simulation Chart -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="font-bold text-slate-800 text-sm">Cumulative Investor Payback Timeline</h3>
+                <p class="text-xs text-slate-500">Tracking Investor Capital (₦8.60M) recovery across 16 months of lay + terminal spent cull</p>
+              </div>
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-blue-50 text-investor-700 border border-blue-200" id="badgeInvestorPayback">
+                Payback: ~17 Months Lay
+              </span>
+            </div>
+            <div class="h-56 relative">
+              <canvas id="paybackTimelineChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="content-partnership" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        
+        <div class="border-b border-slate-100 pb-4">
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-investor-700 border border-blue-200 mb-2">
+            Structured Partnership Agreement
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Equity Profit-Share Agreement (60% Investor / 40% Operator)</h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-3xl">
+            A transparent and aligned co-investment model. The operating partner commits <strong>₦3,000,000 in equity cash</strong> plus complete operational husbandry, veterinary control, and marketing execution. The financial investor commits <strong>₦8,600,000</strong> to fund the total ₦11,600,000 project capital.
+          </p>
+        </div>
+
+        <!-- Partnership Allocation Breakdown Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Investor Card (60%) -->
+          <div class="p-5 rounded-xl border-2 border-investor-500 bg-investor-50/20 space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-investor-700 block">Financial Investor Partner</span>
+                <h3 class="text-2xl font-black text-slate-900">60% Equity Share</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-blue-100 text-investor-700 text-xs font-bold">₦8,600,000 (74.1%)</span>
+            </div>
+
+            <ul class="text-xs text-slate-600 space-y-2">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-investor-600"></i>
+                <span><strong>Capital Contribution:</strong> ₦8,600,000 cash disbursed for pre-lay rearing and buffer.</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-investor-600"></i>
+                <span><strong>Monthly Lay Surplus Share:</strong> 60% of all net operational surpluses paid monthly in arrears.</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-investor-600"></i>
+                <span><strong>Terminal Spent Hen Share:</strong> 60% of all end-of-cycle bird sales (~₦1.55M).</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-investor-600"></i>
+                <span><strong>Security:</strong> Direct physical asset ownership of 500-bird flock, battery cages, and farm tools.</span>
+              </li>
+            </ul>
+
+            <div class="p-3 bg-white rounded-lg border border-blue-200 text-xs space-y-1">
+              <div class="flex justify-between font-semibold text-slate-700">
+                <span>Estimated Monthly Dividend:</span>
+                <span class="text-investor-700 font-bold" id="partInvestorMonthly">₦471,000 / mo</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>16-Month Lay Cycle Cumulative Dividend:</span>
+                <span class="font-bold text-slate-800" id="partInvestorCycleDiv">₦7,536,000</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>+ Terminal Spent Flock Share (60%):</span>
+                <span class="font-bold text-slate-800" id="partInvestorTerminal">₦1,548,000</span>
+              </div>
+              <div class="flex justify-between font-bold text-slate-900 border-t border-slate-100 pt-1">
+                <span>Total Investor Return across Cycle:</span>
+                <span class="text-investor-700 font-black" id="partInvestorGrossReturn">₦9,084,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Operator Card (40%) -->
+          <div class="p-5 rounded-xl border-2 border-operator-500 bg-operator-50/20 space-y-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-operator-700 block">Operating Managing Partner</span>
+                <h3 class="text-2xl font-black text-slate-900">40% Equity Share</h3>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg bg-fuchsia-100 text-operator-700 text-xs font-bold">₦3,000,000 + Operations</span>
+            </div>
+
+            <ul class="text-xs text-slate-600 space-y-2">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-operator-600"></i>
+                <span><strong>Capital Contribution:</strong> ₦3,000,000 direct equity capital injection.</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-operator-600"></i>
+                <span><strong>Technical Execution:</strong> Complete husbandry, disease prophylaxis, feed formulation audit, and egg sales.</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-operator-600"></i>
+                <span><strong>Monthly Lay Surplus Share:</strong> 40% of all net operational surpluses paid monthly in arrears.</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-operator-600"></i>
+                <span><strong>Terminal Spent Hen Share:</strong> 40% of all end-of-cycle bird sales (~₦1.03M).</span>
+              </li>
+            </ul>
+
+            <div class="p-3 bg-white rounded-lg border border-fuchsia-200 text-xs space-y-1">
+              <div class="flex justify-between font-semibold text-slate-700">
+                <span>Estimated Monthly Earnings:</span>
+                <span class="text-operator-700 font-bold" id="partOperatorMonthly">₦314,000 / mo</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>16-Month Lay Cycle Cumulative Retained:</span>
+                <span class="font-bold text-slate-800" id="partOperatorCycleDiv">₦5,024,000</span>
+              </div>
+              <div class="flex justify-between text-slate-500">
+                <span>+ Terminal Spent Flock Share (40%):</span>
+                <span class="font-bold text-slate-800" id="partOperatorTerminal">₦1,032,000</span>
+              </div>
+              <div class="flex justify-between font-bold text-slate-900 border-t border-slate-100 pt-1">
+                <span>Total Operator Return across Cycle:</span>
+                <span class="text-operator-700 font-black" id="partOperatorGrossReturn">₦6,056,000</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Partnership Principles & Controls -->
+        <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <h4 class="font-bold text-slate-900 text-sm">Governance, Distribution &amp; Operational Controls</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+            <div>
+              <span class="font-bold text-slate-800 block mb-1">1. Joint Financial Oversight</span>
+              Dedicated project bank account requiring dual authorization for non-routine expenditures. Weekly verified egg sales logs and bag consumption audit.
+            </div>
+            <div>
+              <span class="font-bold text-slate-800 block mb-1">2. Monthly Waterfall Order</span>
+              Gross revenue pays feed invoices, farm labor, and veterinary costs first. 100% of residual surplus is split exactly 60% Investor / 40% Operator.
+            </div>
+            <div>
+              <span class="font-bold text-slate-800 block mb-1">3. Asset Preservation</span>
+              Galvanized cage system (₦1.0M) and biological birds remain tied to the venture until official end-of-cycle liquidation or mutual re-stocking agreement.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="content-capex" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Detailed Capital Budget: ₦11,600,000</h2>
+            <p class="text-xs text-slate-500">Complete itemization of infrastructure, 20-week rearing OPEX, and working capital cushion</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-investor-800">
+              Investor: ₦8,600,000
+            </span>
+            <span class="px-3 py-1 rounded-full text-xs font-bold bg-fuchsia-100 text-operator-800">
+              Operator: ₦3,000,000
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          
+          <div class="md:col-span-5 h-64 relative flex items-center justify-center">
+            <canvas id="capexChart"></canvas>
+          </div>
+
+          <div class="md:col-span-7 space-y-3">
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[11px] font-semibold text-slate-500 block uppercase">1. Fixed CAPEX</span>
+                <span class="text-base font-bold text-slate-800">₦2,715,000</span>
+                <span class="text-[10px] text-slate-400 block">Rent, Cages, Tools</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[11px] font-semibold text-slate-500 block uppercase">2. Pre-Lay OPEX</span>
+                <span class="text-base font-bold text-slate-800">₦5,545,100</span>
+                <span class="text-[10px] text-slate-400 block">DOCs, Feed to 20W + 10%</span>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <span class="text-[11px] font-semibold text-slate-500 block uppercase">3. Working Capital</span>
+                <span class="text-base font-bold text-emerald-700">₦3,339,900</span>
+                <span class="text-[10px] text-slate-400 block">2-Mo Feed + Float Buffer</span>
+              </div>
+            </div>
+
+            <!-- Table of Detailed Items -->
+            <div class="overflow-x-auto text-xs border border-slate-200 rounded-xl">
+              <table class="w-full text-left">
+                <thead class="bg-slate-100 text-slate-600 font-semibold uppercase text-[10px]">
+                  <tr>
+                    <th class="py-2.5 px-3">Item Category</th>
+                    <th class="py-2.5 px-3">Specification / Description</th>
+                    <th class="py-2.5 px-3 text-right">Cost (₦)</th>
+                    <th class="py-2.5 px-3 text-right">% of Total</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-slate-700">
+                  <tr class="bg-slate-50/50">
+                    <td class="py-2 px-3 font-semibold text-slate-900">Poultry Pen Facility Lease</td>
+                    <td class="py-2 px-3">Secured housing rent for the production cycle</td>
+                    <td class="py-2 px-3 text-right font-medium">1,500,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">12.9%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Galvanized Battery Cages</td>
+                    <td class="py-2 px-3">500-bird multi-tier units with automated nipple drinkers</td>
+                    <td class="py-2 px-3 text-right font-medium">1,000,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">8.6%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Equipment &amp; Farm Tools</td>
+                    <td class="py-2 px-3">Gas brooders, feed pans, precision scale, sprayers</td>
+                    <td class="py-2 px-3 text-right font-medium">215,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">1.9%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">500 Commercial Layer DOCs</td>
+                    <td class="py-2 px-3">Day-old chicks (*ISA Brown / Lohmann Brown*) @ ₦3,700</td>
+                    <td class="py-2 px-3 text-right font-medium">1,850,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">15.9%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Rearing Feed (DOC to 20 Wks)</td>
+                    <td class="py-2 px-3">Starter (30 bags), Grower (94 bags), Pre-Lay (28 bags)</td>
+                    <td class="py-2 px-3 text-right font-medium">2,366,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">20.4%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Health, Vet &amp; Prophylaxis</td>
+                    <td class="py-2 px-3">Vaccines (Lasota, Gumboro, Fowl Pox) + Vitamins/Dewormers</td>
+                    <td class="py-2 px-3 text-right font-medium">150,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">1.3%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Rearing Labour (5 Months)</td>
+                    <td class="py-2 px-3">Experienced stockman & brooding husbandry management</td>
+                    <td class="py-2 px-3 text-right font-medium">500,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">4.3%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">Logistics &amp; Brooding Fuel</td>
+                    <td class="py-2 px-3">Haulage, brooding heat energy, biosecurity chemicals</td>
+                    <td class="py-2 px-3 text-right font-medium">175,000</td>
+                    <td class="py-2 px-3 text-right text-slate-500">1.5%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-semibold text-slate-900">10% Pre-Lay Contingency</td>
+                    <td class="py-2 px-3">Price protection against feed and ingredient shocks</td>
+                    <td class="py-2 px-3 text-right font-medium">504,100</td>
+                    <td class="py-2 px-3 text-right text-slate-500">4.3%</td>
+                  </tr>
+                  <tr class="bg-emerald-50/70 font-semibold text-emerald-950">
+                    <td class="py-2 px-3">Post-Lay Working Capital Buffer</td>
+                    <td class="py-2 px-3">2-month post-lay feed buffer (₦2.5M) + Cash float (₦839.9k)</td>
+                    <td class="py-2 px-3 text-right font-bold text-brand-700">3,339,900</td>
+                    <td class="py-2 px-3 text-right">28.8%</td>
+                  </tr>
+                </tbody>
+                <tfoot class="bg-slate-100 font-bold text-slate-900">
+                  <tr>
+                    <td colspan="2" class="py-2.5 px-3">Total Project Capitalization</td>
+                    <td class="py-2.5 px-3 text-right text-brand-700 font-extrabold text-sm">₦11,600,000</td>
+                    <td class="py-2.5 px-3 text-right">100.0%</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="content-operations" class="tab-panel hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-6">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Operational Lifecycle Roadmap (85–90 Weeks)</h2>
+          <p class="text-xs text-slate-500">Step-by-step biological and commercial milestones from facility commissioning to spent layer salvage</p>
+        </div>
+
+        <div class="relative border-l-2 border-emerald-500 ml-4 pl-6 space-y-7">
+          
+          <!-- Step 1 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 0 – 2</span>
+              <h3 class="font-bold text-slate-900 text-sm">Facility Lease &amp; Battery Cage Setup</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Discharge ₦1.5M farm facility rent. Install ₦1.0M galvanized 3-tier battery cages with automatic nipple drinker pipelines and anti-waste feed troughs. Disinfect pen and commission brooder heating.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 1 – 8</span>
+              <h3 class="font-bold text-slate-900 text-sm">Brooding &amp; Chick Starter Phase</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Stock 500 commercial layer DOCs (@ ₦3,700). Maintain regulated brooding heat, anti-stress protocols, and rigorous Lasota/Gumboro immunization courses. Consume ~30 bags starter feed.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 9 – 18</span>
+              <h3 class="font-bold text-slate-900 text-sm">Grower Phase &amp; Cage Transfer</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Transition to grower mash (~94 bags). Weekly sample weighing to maintain strict target bodyweight. Cautious beak trimming and transfer into battery cages at Week 16 to acclimate birds before lay onset.
+            </p>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 19 – 24</span>
+              <h3 class="font-bold text-slate-900 text-sm">Point-of-Lay (POL) &amp; Ramp-Up</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              First pullet eggs emerge at Week 18–20. Lay rate climbs rapidly from 30% to 75%+. Feed transitions to high-calcium Layer Mash. Working capital reserve covers operational costs during this ramp-up.
+            </p>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 25 – 75</span>
+              <h3 class="font-bold text-slate-900 text-sm">Peak Production &amp; Sustained Monthly Cash Flow</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Flock stabilizes at 88–92% Hen-Day production (~420–450 eggs/day, producing ~440–460 crates per month). Generates consistent net monthly operating surplus of ~₦785k+, distributed 60% Investor / 40% Operator.
+            </p>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="relative">
+            <span class="absolute -left-[31px] top-0.5 w-4 h-4 rounded-full bg-white border-4 border-emerald-600"></span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-xs font-bold text-emerald-700 uppercase">Weeks 76 – 90</span>
+              <h3 class="font-bold text-slate-900 text-sm">Flock Liquidation &amp; Terminal Salvage</h3>
+            </div>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Production tapers below the economic threshold (&lt;65%). Surviving ~430 spent layers are sold into the live meat market at ₦6,000/bird (yielding ~₦2,580,000), split 60/40. Battery cages are cleaned and prepped for Batch 2.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-4 h-4 text-brand-600"></i>
+          <h3 class="font-bold text-slate-900 text-sm">Key Operating Safeguards &amp; Loss Prevention</h3>
+        </div>
+        <span class="text-xs text-slate-400">Strict Operating Protocols</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-600"></i>
+            Feed Efficiency &amp; Zero Wastage
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Feed is &gt;75% of operational expense. Galvanized cages with roll-lipped feed troughs prevent feed scooping and eliminate feed waste by 8–12%.
+          </p>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-600"></i>
+            Biosecurity &amp; Zero Coccidiosis
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Battery cages isolate birds completely from litter and droppings, virtually eliminating coccidiosis and internal parasites, protecting 95% flock livability.
+          </p>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-brand-600"></i>
+            Egg Integrity &amp; Guaranteed Off-Take
+          </div>
+          <p class="text-slate-600 leading-relaxed">
+            Sloped wire floors roll fresh eggs immediately away from birds, preventing pecking and cracks. Bulk supply arrangements with bakeries ensure steady off-take.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-400 py-3">
+      500-Bird Layer Production Model &bull; 60% Investor / 40% Operator Equity Partnership &bull; Commercial Feasibility Document
+    </footer>
+
+  </main>
+
+  <script>
+    // Project Baseline State
+    const state = {
+      // Biology & Commercial Parameters
+      eggPrice: 4500,
+      layRate: 90,
+      feedPrice: 15000,
+      mortality: 5,
+      spentPrice: 6000,
+      initialBirds: 500,
+      
+      // Capital Structure
+      totalCapital: 11600000,
+      operatorContribution: 3000000,
+      investorContribution: 8600000,
+      investorShare: 0.60,
+      operatorShare: 0.40,
+      
+      // Monthly Non-Feed Operating Costs during Laying Phase
+      fixedOpex: {
+        labour: 150000,
+        vet: 25000,
+        transport: 30000,
+        biosecurity: 10000,
+        maintenance: 10000,
+        miscellaneous: 15000
+      }
+    };
+
+    // Number Formatters
+    const formatNaira = (num) => '₦' + Math.round(num).toLocaleString('en-NG');
+
+    // DOM References
+    const elements = {
+      // Sliders & Values
+      inputEggPrice: document.getElementById('inputEggPrice'),
+      valEggPrice: document.getElementById('valEggPrice'),
+      inputLayRate: document.getElementById('inputLayRate'),
+      valLayRate: document.getElementById('valLayRate'),
+      inputFeedPrice: document.getElementById('inputFeedPrice'),
+      valFeedPrice: document.getElementById('valFeedPrice'),
+      inputMortality: document.getElementById('inputMortality'),
+      valMortality: document.getElementById('valMortality'),
+      inputSpentPrice: document.getElementById('inputSpentPrice'),
+      valSpentPrice: document.getElementById('valSpentPrice'),
+      
+      // Dashboard Cards
+      cardMonthlyRevenue: document.getElementById('cardMonthlyRevenue'),
+      cardCratesProduced: document.getElementById('cardCratesProduced'),
+      cardDailyEggs: document.getElementById('cardDailyEggs'),
+      cardMonthlyOpex: document.getElementById('cardMonthlyOpex'),
+      cardFeedCostNote: document.getElementById('cardFeedCostNote'),
+      cardNetSurplus: document.getElementById('cardNetSurplus'),
+      cardOperatingMargin: document.getElementById('cardOperatingMargin'),
+      cardInvestorMonthly: document.getElementById('cardInvestorMonthly'),
+      cardOperatorMonthly: document.getElementById('cardOperatorMonthly'),
+      badgeInvestorPayback: document.getElementById('badgeInvestorPayback'),
+
+      // Partnership Details
+      partInvestorMonthly: document.getElementById('partInvestorMonthly'),
+      partInvestorCycleDiv: document.getElementById('partInvestorCycleDiv'),
+      partInvestorTerminal: document.getElementById('partInvestorTerminal'),
+      partInvestorGrossReturn: document.getElementById('partInvestorGrossReturn'),
+      partOperatorMonthly: document.getElementById('partOperatorMonthly'),
+      partOperatorCycleDiv: document.getElementById('partOperatorCycleDiv'),
+      partOperatorTerminal: document.getElementById('partOperatorTerminal'),
+      partOperatorGrossReturn: document.getElementById('partOperatorGrossReturn'),
+    };
+
+    let monthlyCashChart = null;
+    let paybackTimelineChart = null;
+    let capexChart = null;
+
+    // Core Financial Computation Function
+    function computeFinancials() {
+      // 1. Biological Survival to Lay
+      const survivingHens = Math.round(state.initialBirds * (1 - state.mortality / 100)); // e.g. 475 birds
+      
+      // 2. Egg Productivity
+      const dailyEggs = Math.round(survivingHens * (state.layRate / 100)); // e.g. 475 * 0.9 = 428 eggs
+      const monthlyEggs = dailyEggs * 30;
+      const cratesPerMonth = Math.round(monthlyEggs / 30); // 30 eggs/crate
+      const monthlyGrossRevenue = cratesPerMonth * state.eggPrice;
+
+      // 3. Feed & Operating Costs
+      // Average 118 grams feed per hen per day
+      const dailyFeedKg = survivingHens * 0.118;
+      const monthlyFeedKg = dailyFeedKg * 30;
+      const monthlyFeedBags = monthlyFeedKg / 25; // 25kg bags (approx 67 bags)
+      const monthlyFeedCost = monthlyFeedBags * state.feedPrice;
+      
+      const fixedMonthlyOpex = Object.values(state.fixedOpex).reduce((sum, item) => sum + item, 0);
+      const totalMonthlyOpex = monthlyFeedCost + fixedMonthlyOpex;
+
+      // 4. Operating Surplus & Equity Split (60% / 40%)
+      const netMonthlySurplus = Math.max(0, monthlyGrossRevenue - totalMonthlyOpex);
+      const operatingMargin = monthlyGrossRevenue > 0 ? (netMonthlySurplus / monthlyGrossRevenue) * 100 : 0;
+      
+      const investorMonthlyShare = netMonthlySurplus * state.investorShare; // 60%
+      const operatorMonthlyShare = netMonthlySurplus * state.operatorShare; // 40%
+
+      // 5. Terminal Spent Hen Salvage (~91% of productive laying flock surviving to end)
+      const terminalSurvivingHens = Math.round(survivingHens * 0.91); // ~430 birds
+      const grossSpentHenRevenue = terminalSurvivingHens * state.spentPrice;
+      const investorSpentShare = grossSpentHenRevenue * state.investorShare;
+      const operatorSpentShare = grossSpentHenRevenue * state.operatorShare;
+
+      // 6. Payback on Laying Cycle (Investor Capital: ₦8,600,000)
+      const investorCapital = state.investorContribution;
+      const monthsToPayback = investorMonthlyShare > 0 ? (investorCapital / investorMonthlyShare).toFixed(1) : 'N/A';
+
+      return {
+        survivingHens,
+        dailyEggs,
+        cratesPerMonth,
+        monthlyGrossRevenue,
+        monthlyFeedBags: Math.round(monthlyFeedBags),
+        monthlyFeedCost,
+        fixedMonthlyOpex,
+        totalMonthlyOpex,
+        netMonthlySurplus,
+        operatingMargin,
+        investorMonthlyShare,
+        operatorMonthlyShare,
+        terminalSurvivingHens,
+        grossSpentHenRevenue,
+        investorSpentShare,
+        operatorSpentShare,
+        monthsToPayback
+      };
+    }
+
+    // Refresh UI with calculated figures
+    function refreshDashboard() {
+      const metrics = computeFinancials();
+
+      // Sliders label updates
+      elements.valEggPrice.textContent = formatNaira(state.eggPrice);
+      elements.valLayRate.textContent = `${state.layRate}%`;
+      elements.valFeedPrice.textContent = formatNaira(state.feedPrice);
+      elements.valMortality.textContent = `${state.mortality}% (${metrics.survivingHens} Hens entering lay)`;
+      elements.valSpentPrice.textContent = formatNaira(state.spentPrice);
+
+      // Card Metrics updates
+      elements.cardMonthlyRevenue.textContent = formatNaira(metrics.monthlyGrossRevenue);
+      elements.cardCratesProduced.textContent = `${metrics.cratesPerMonth} crates/mo`;
+      elements.cardDailyEggs.textContent = `${metrics.dailyEggs} eggs/day`;
+
+      elements.cardMonthlyOpex.textContent = formatNaira(metrics.totalMonthlyOpex);
+      elements.cardFeedCostNote.textContent = `Feed: ${formatNaira(metrics.monthlyFeedCost)}`;
+
+      elements.cardNetSurplus.textContent = formatNaira(metrics.netMonthlySurplus);
+      elements.cardOperatingMargin.textContent = `${metrics.operatingMargin.toFixed(1)}%`;
+
+      elements.cardInvestorMonthly.textContent = formatNaira(metrics.investorMonthlyShare);
+      elements.cardOperatorMonthly.textContent = `Operator (40%): ${formatNaira(metrics.operatorMonthlyShare)}`;
+
+      elements.badgeInvestorPayback.textContent = metrics.monthsToPayback !== 'N/A' 
+        ? `Investor Payback: ~${metrics.monthsToPayback} Mos of Lay` 
+        : 'Zero/Negative Margin';
+
+      // Partnership Section updates
+      const layCycleMonths = 16; // Average peak lay duration
+      const totalInvestorDividends = metrics.investorMonthlyShare * layCycleMonths;
+      const totalOperatorDividends = metrics.operatorMonthlyShare * layCycleMonths;
+
+      elements.partInvestorMonthly.textContent = `${formatNaira(metrics.investorMonthlyShare)} / mo`;
+      elements.partInvestorCycleDiv.textContent = formatNaira(totalInvestorDividends);
+      elements.partInvestorTerminal.textContent = formatNaira(metrics.investorSpentShare);
+      elements.partInvestorGrossReturn.textContent = formatNaira(totalInvestorDividends + metrics.investorSpentShare);
+
+      elements.partOperatorMonthly.textContent = `${formatNaira(metrics.operatorMonthlyShare)} / mo`;
+      elements.partOperatorCycleDiv.textContent = formatNaira(totalOperatorDividends);
+      elements.partOperatorTerminal.textContent = formatNaira(metrics.operatorSpentShare);
+      elements.partOperatorGrossReturn.textContent = formatNaira(totalOperatorDividends + metrics.operatorSpentShare);
+
+      // Refresh Charts
+      updateWaterfallChart(metrics);
+      updatePaybackChart(metrics);
+    }
+
+    // Chart Initialization & Updates
+    function initCharts() {
+      // 1. Monthly Waterfall Chart
+      const ctxCash = document.getElementById('monthlyCashChart').getContext('2d');
+      monthlyCashChart = new Chart(ctxCash, {
+        type: 'bar',
+        data: {
+          labels: ['Gross Revenue', 'Feed OPEX', 'Other OPEX', 'Investor (60%)', 'Operator (40%)'],
+          datasets: [{
+            label: 'Amount (₦)',
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.9)', // Revenue
+              'rgba(245, 158, 11, 0.85)', // Feed
+              'rgba(100, 116, 139, 0.85)', // Overhead
+              'rgba(37, 99, 235, 0.9)',   // Investor 60%
+              'rgba(192, 38, 211, 0.9)'   // Operator 40%
+            ],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ' ' + formatNaira(ctx.raw)
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: (val) => '₦' + (val / 1000).toLocaleString() + 'k'
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // 2. Cumulative Payback Timeline Chart
+      const ctxPayback = document.getElementById('paybackTimelineChart').getContext('2d');
+      paybackTimelineChart = new Chart(ctxPayback, {
+        type: 'line',
+        data: {
+          labels: ['Start Lay', 'Mo 3', 'Mo 6', 'Mo 9', 'Mo 12', 'Mo 15', 'Mo 16 (End + Salvage)'],
+          datasets: [
+            {
+              label: 'Investor Cumulative Cash Realized',
+              data: [0, 0, 0, 0, 0, 0, 0],
+              borderColor: '#2563eb',
+              backgroundColor: 'rgba(37, 99, 235, 0.1)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 4,
+              pointBackgroundColor: '#2563eb'
+            },
+            {
+              label: 'Investor Principal Benchmark (₦8.60M)',
+              data: [8600000, 8600000, 8600000, 8600000, 8600000, 8600000, 8600000],
+              borderColor: '#ef4444',
+              borderDash: [6, 6],
+              borderWidth: 2,
+              pointRadius: 0,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { boxWidth: 12, font: { size: 10 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` ${ctx.dataset.label}: ${formatNaira(ctx.raw)}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: (val) => '₦' + (val / 1000000).toFixed(1) + 'M'
+              },
+              grid: { color: '#f1f5f9' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // 3. Capital Doughnut Chart
+      const ctxCapex = document.getElementById('capexChart').getContext('2d');
+      capexChart = new Chart(ctxCapex, {
+        type: 'doughnut',
+        data: {
+          labels: [
+            'Pen Rent (₦1.5M)', 
+            'Battery Cages (₦1.0M)', 
+            'Equipment & Tools (₦215k)', 
+            '500 DOCs (₦1.85M)', 
+            'Rearing Feed (₦2.37M)', 
+            'Labour & Vet (₦650k)', 
+            'Contingency & Logistics (₦679k)', 
+            'Working Capital Buffer (₦3.34M)'
+          ],
+          datasets: [{
+            data: [1500000, 1000000, 215000, 1850000, 2366000, 650000, 679100, 3339900],
+            backgroundColor: [
+              '#3b82f6',
+              '#0284c7',
+              '#64748b',
+              '#f59e0b',
+              '#ea580c',
+              '#d97706',
+              '#94a3b8',
+              '#10b981'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` ${ctx.label}: ${formatNaira(ctx.raw)}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateWaterfallChart(metrics) {
+      if (!monthlyCashChart) return;
+      monthlyCashChart.data.datasets[0].data = [
+        metrics.monthlyGrossRevenue,
+        metrics.monthlyFeedCost,
+        metrics.fixedMonthlyOpex,
+        metrics.investorMonthlyShare,
+        metrics.operatorMonthlyShare
+      ];
+      monthlyCashChart.update();
+    }
+
+    function updatePaybackChart(metrics) {
+      if (!paybackTimelineChart) return;
+      const m = metrics.investorMonthlyShare;
+      const terminal = metrics.investorSpentShare;
+      
+      paybackTimelineChart.data.datasets[0].data = [
+        0,
+        m * 3,
+        m * 6,
+        m * 9,
+        m * 12,
+        m * 15,
+        (m * 16) + terminal
+      ];
+      paybackTimelineChart.update();
+    }
+
+    // Slider Event Listeners
+    function attachEventListeners() {
+      elements.inputEggPrice.addEventListener('input', (e) => {
+        state.eggPrice = parseFloat(e.target.value);
+        refreshDashboard();
+      });
+      elements.inputLayRate.addEventListener('input', (e) => {
+        state.layRate = parseFloat(e.target.value);
+        refreshDashboard();
+      });
+      elements.inputFeedPrice.addEventListener('input', (e) => {
+        state.feedPrice = parseFloat(e.target.value);
+        refreshDashboard();
+      });
+      elements.inputMortality.addEventListener('input', (e) => {
+        state.mortality = parseFloat(e.target.value);
+        refreshDashboard();
+      });
+      elements.inputSpentPrice.addEventListener('input', (e) => {
+        state.spentPrice = parseFloat(e.target.value);
+        refreshDashboard();
+      });
+    }
+
+    // Presets
+    function applyPreset(scenario) {
+      if (scenario === 'conservative') {
+        state.eggPrice = 4200;
+        state.layRate = 84;
+        state.feedPrice = 17000;
+        state.mortality = 7;
+      } else if (scenario === 'expected') {
+        state.eggPrice = 4500;
+        state.layRate = 90;
+        state.feedPrice = 15000;
+        state.mortality = 5;
+      } else if (scenario === 'strong') {
+        state.eggPrice = 4800;
+        state.layRate = 93;
+        state.feedPrice = 14500;
+        state.mortality = 4;
+      }
+
+      elements.inputEggPrice.value = state.eggPrice;
+      elements.inputLayRate.value = state.layRate;
+      elements.inputFeedPrice.value = state.feedPrice;
+      elements.inputMortality.value = state.mortality;
+      refreshDashboard();
+    }
+
+    function resetDefaults() {
+      applyPreset('expected');
+      state.spentPrice = 6000;
+      elements.inputSpentPrice.value = 6000;
+      refreshDashboard();
+    }
+
+    // Tab Navigation
+    function switchTab(targetKey) {
+      const tabs = ['dashboard', 'partnership', 'capex', 'operations'];
+      tabs.forEach(tab => {
+        const content = document.getElementById(`content-${tab}`);
+        const btn = document.getElementById(`tab-${tab}`);
+        if (tab === targetKey) {
+          content.classList.remove('hidden');
+          btn.className = 'tab-btn pb-3 px-3 text-sm font-semibold text-brand-700 border-b-2 border-brand-600 flex items-center gap-2';
+        } else {
+          content.classList.add('hidden');
+          btn.className = 'tab-btn pb-3 px-3 text-sm font-semibold text-slate-500 hover:text-slate-800 border-b-2 border-transparent flex items-center gap-2';
+        }
+      });
+    }
+
+    // Initialization on Page Load
+    window.onload = function() {
+      lucide.createIcons();
+      initCharts();
+      attachEventListeners();
+      refreshDashboard();
+    };
+  </script>
+</body>
+</html>
