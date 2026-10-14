@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Session 4: Documenting Processes & Effective Handover</title>
+  <style>
+    :root {
+      --lasg-green: #0b6623;
+      --lasg-dark-green: #074317;
+      --lasg-accent: #d4af37;
+      --lasg-blue: #1e3a8a;
+      --bg-dark: #0f172a;
+      --bg-light: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* Presentation Layout */
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    /* Top Bar */
+    header.deck-header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(8px);
+      color: white;
+      padding: 0.65rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--lasg-accent);
+      z-index: 100;
+    }
+
+    .header-branding {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #f1f5f9;
+    }
+
+    .header-sub {
+      font-size: 0.75rem;
+      color: var(--lasg-accent);
+      font-weight: 500;
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: var(--lasg-green);
+      border-color: var(--lasg-green);
+    }
+
+    /* Slide Stage */
+    #stage-viewport {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 1.5rem;
+      background: radial-gradient(circle at top right, #1e293b, #0f172a);
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+      height: 100%;
+      max-height: 640px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      padding: 2.75rem 3.5rem;
+      overflow-y: auto;
+      flex-direction: column;
+      position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Document/List Mode */
+    body.list-mode {
+      overflow-y: auto;
+      height: auto;
+    }
+
+    body.list-mode #app-container {
+      height: auto;
+    }
+
+    body.list-mode #stage-viewport {
+      display: block;
+      height: auto;
+      padding: 2rem 1rem;
+      overflow: visible;
+    }
+
+    body.list-mode .slide {
+      display: flex !important;
+      max-height: none;
+      margin: 0 auto 2.5rem auto;
+      box-shadow: var(--shadow);
+    }
+
+    body.list-mode .deck-nav {
+      display: none !important;
+    }
+
+    /* Slide Content Typography & Elements */
+    .slide-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: var(--lasg-dark-green);
+      border: 1px solid #a7f3d0;
+      margin-bottom: 0.75rem;
+    }
+
+    .slide-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--lasg-dark-green);
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-weight: 400;
+      line-height: 1.45;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* Common Card Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--lasg-green);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--lasg-dark-green);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-p {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    /* Flow Ribbons */
+    .flow-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      margin: 1.25rem 0;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--lasg-dark-green);
+      gap: 0.5rem;
+    }
+
+    .flow-arrow {
+      color: var(--lasg-accent);
+      font-weight: 900;
+    }
+
+    /* Process Step Bars */
+    .steps-chain {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin: 1rem 0;
+    }
+
+    .step-node {
+      background: #f8fafc;
+      border-left: 4px solid var(--lasg-green);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      flex: 1 1 calc(25% - 0.6rem);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .step-idx {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--lasg-green);
+    }
+
+    .step-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Comparison Columns */
+    .compare-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .compare-box {
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .box-bad {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+    }
+
+    .box-bad h4 {
+      color: #b91c1c;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .box-good {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+    }
+
+    .box-good h4 {
+      color: var(--lasg-dark-green);
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .styled-list {
+      list-style: none;
+    }
+
+    .styled-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .styled-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--lasg-green);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* Template Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table.data-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    table.data-tbl th {
+      background: #f1f5f9;
+      color: var(--lasg-dark-green);
+      font-weight: 700;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.data-tbl td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    table.data-tbl tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Exercise Callout Box */
+    .exercise-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 5px solid #2563eb;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .exercise-item {
+      font-size: 0.85rem;
+    }
+
+    .exercise-label {
+      font-weight: 700;
+      color: #1e40af;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      display: block;
+    }
+
+    /* Navigation Bar */
+    footer.deck-nav {
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      z-index: 100;
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .btn-nav {
+      background: var(--lasg-green);
+      border: none;
+      color: white;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background: #0d832d;
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .slide-select {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: white;
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      outline: none;
+      max-width: 260px;
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--lasg-accent);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    /* Responsive scaling */
+    @media (max-width: 768px) {
+      .slide {
+        padding: 1.5rem;
+        max-height: none;
+        height: 100%;
+        border-radius: 0;
+      }
+      #stage-viewport {
+        padding: 0;
+      }
+      .slide-title {
+        font-size: 1.4rem;
+      }
+      .grid-2, .grid-3, .grid-4, .compare-container {
+        grid-template-columns: 1fr;
+      }
+      .header-title {
+        font-size: 0.8rem;
+      }
+      .slide-select {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- Header -->
+    <header class="deck-header">
+      <div class="header-branding">
+        <span class="header-title">Preserving Institutional Wisdom</span>
+        <span class="header-sub">Lagos State Civil Service · Day 2, Session 4</span>
+      </div>
+      <div class="header-tools">
+        <button id="toggle-view" class="btn-tool" title="Switch between Slide Deck view and Reader Document view">
+          📄 Switch to Document View
+        </button>
+        <button id="btn-fullscreen" class="btn-tool" title="Toggle Fullscreen">⛶ Fullscreen</button>
+      </div>
+    </header>
+
+    <!-- Slide Canvas -->
+    <main id="stage-viewport">
+
+      <!-- SLIDE 1: Title -->
+      <section class="slide active" data-slide="1">
+        <span class="slide-badge">Preserving Institutional Wisdom</span>
+        <h1 class="slide-title" style="font-size: 2.5rem; margin-top: 1rem;">Documenting Processes &amp; Effective Handover</h1>
+        <p class="slide-subtitle" style="font-size: 1.25rem; color: var(--lasg-dark-green); font-weight: 600;">
+          Turning Institutional Experience into Usable Processes, Procedures, and Handover Knowledge.
+        </p>
+        <div class="slide-body">
+          <div class="card" style="border-left: 5px solid var(--lasg-accent); background: #fdfdf9;">
+            <p style="font-size: 1rem; color: #475569; line-height: 1.6;">
+              <strong>Programme:</strong> Day 2, Session 4<br>
+              <strong>Audience:</strong> Lagos State Civil Service Officers<br>
+              <strong>Core Objective:</strong> Moving from individual experience to institutional continuity.
+            </p>
+          </div>
+          <div class="flow-ribbon">
+            <span>Identify</span> <span class="flow-arrow">→</span>
+            <span>Map</span> <span class="flow-arrow">→</span>
+            <span>Document</span> <span class="flow-arrow">→</span>
+            <span>Simplify</span> <span class="flow-arrow">→</span>
+            <span>Hand Over</span> <span class="flow-arrow">→</span>
+            <span>Validate</span> <span class="flow-arrow">→</span>
+            <span>Continue</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 2: Objectives -->
+      <section class="slide" data-slide="2">
+        <span class="slide-badge">Session Objectives</span>
+        <h2 class="slide-title">Three Practical Deliverables for This Session</h2>
+        <p class="slide-subtitle">By the end of this session, each working group will produce three tangible tools:</p>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <span class="card-num">1</span>
+              <h3 class="card-title">A Mapped Process</h3>
+              <p class="card-p">Make the steps, decision points, assigned responsibilities, and inter-cadre dependencies fully visible.</p>
+            </div>
+            <div class="card">
+              <span class="card-num">2</span>
+              <h3 class="card-title">A Draft SOP</h3>
+              <p class="card-p">Convert the visual process map into clear, unambiguous numbered instructions that any competent officer can execute.</p>
+            </div>
+            <div class="card">
+              <span class="card-num">3</span>
+              <h3 class="card-title">A Completed Handover Template</h3>
+              <p class="card-p">Safeguard ongoing assignments, critical tacit insights, contact networks, and immediate next actions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 3: Day 1 vs Day 2 Bridge -->
+      <section class="slide" data-slide="3">
+        <span class="slide-badge">Curriculum Roadmap</span>
+        <h2 class="slide-title">Day 1 Identified &amp; Captured; Day 2 Documents &amp; Institutionalizes</h2>
+        <p class="slide-subtitle">Converting spoken interviews and tacit memories into repeatable state tools.</p>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <span class="card-title" style="color: #475569;">01 · Identify</span>
+              <p class="card-p">Locate critical and endangered institutional knowledge across desks.</p>
+            </div>
+            <div class="card">
+              <span class="card-title" style="color: #475569;">02 · Capture</span>
+              <p class="card-p">Elicit experience from senior officers and legacy voices.</p>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--lasg-green); background: #f0fdf4;">
+              <span class="card-title" style="color: var(--lasg-dark-green);">03 · Document</span>
+              <p class="card-p">Transform lessons and workflows into usable operational instructions.</p>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--lasg-green); background: #f0fdf4;">
+              <span class="card-title" style="color: var(--lasg-dark-green);">04 · Transfer</span>
+              <p class="card-p">Pass knowledge systematically to incoming desk officers.</p>
+            </div>
+            <div class="card">
+              <span class="card-title" style="color: #475569;">05 · Share</span>
+              <p class="card-p">Broaden access across departments, cadres, and MDAs.</p>
+            </div>
+            <div class="card">
+              <span class="card-title" style="color: #475569;">06 · Sustain</span>
+              <p class="card-p">Review, audit, and keep documentation current year after year.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 4: The Core Question -->
+      <section class="slide" data-slide="4">
+        <span class="slide-badge">Guiding Philosophy</span>
+        <h2 class="slide-title">How Do We Turn What One Officer Knows into a Process Another Can Follow?</h2>
+        <div class="slide-body">
+          <div class="grid-4" style="margin-top: 2rem;">
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+              <h4 style="color: var(--lasg-dark-green);">One Person</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Individual Experience &amp; Memory</p>
+            </div>
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+              <h4 style="color: var(--lasg-dark-green);">Documented Process</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Standardized &amp; Usable Instructions</p>
+            </div>
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+              <h4 style="color: var(--lasg-dark-green);">Team / Unit</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Shared Practice &amp; Consistency</p>
+            </div>
+            <div class="card" style="text-align: center;">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏛️</div>
+              <h4 style="color: var(--lasg-dark-green);">The Institution</h4>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Resilience &amp; Total Continuity</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 5: Undocumented vs Documented -->
+      <section class="slide" data-slide="5">
+        <span class="slide-badge">Comparative Analysis</span>
+        <h2 class="slide-title">Documented Knowledge is Visible, Repeatable &amp; Easier to Improve</h2>
+        <div class="slide-body">
+          <div class="compare-container">
+            <div class="compare-box box-bad">
+              <h4>❌ Undocumented Knowledge</h4>
+              <ul class="styled-list">
+                <li>Trapped in individuals' personal memories and habits.</li>
+                <li>Extremely fragile and difficult to transfer during sudden handovers.</li>
+                <li>Vulnerable to staff transfers, sick leave, promotions, or retirements.</li>
+                <li>Prone to misunderstandings, distortions, and personal silos.</li>
+                <li>Forces the service to repeatedly rediscover past solutions.</li>
+              </ul>
+            </div>
+            <div class="compare-box box-good">
+              <h4>✅ Documented Knowledge</h4>
+              <ul class="styled-list">
+                <li>Visible across the registry, unit, and ministry.</li>
+                <li>Rapidly transferable to newly posted successors.</li>
+                <li>Repeatable with uniform speed and compliance.</li>
+                <li>Easier to review against Civil Service Regulations and state policy.</li>
+                <li>Serves as a reliable baseline for continuous digital improvement.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 6: Illustrative Scenario -->
+      <section class="slide" data-slide="6">
+        <span class="slide-badge">Scenario Exploration</span>
+        <h2 class="slide-title">What Happens When a Process Lives Only in Someone's Head?</h2>
+        <div class="slide-body">
+          <div class="card" style="background: #fffbeb; border-color: #fde68a; margin-bottom: 1.5rem;">
+            <p style="font-size: 1.1rem; line-height: 1.6; color: #92400e;">
+              <em>An experienced officer has handled a recurring administrative process for eight consecutive years. A newly assigned officer is posted to take over the desk. The outgoing officer smiles and advises:</em><br><br>
+              <strong style="font-size: 1.35rem; color: #78350f;">“Don’t worry, just follow what we normally do.”</strong>
+            </p>
+          </div>
+          <div class="grid-2">
+            <div class="card">
+              <h4 style="color: #b91c1c;">What could go wrong?</h4>
+              <p class="card-p">Bottlenecks arise, unwritten steps are skipped, wrong templates are filed, approvals stall, and the successor is blamed for unspoken norms.</p>
+            </div>
+            <div class="card">
+              <h4 style="color: var(--lasg-dark-green);">What would the successor need to know?</h4>
+              <p class="card-p">Key milestones, hidden stakeholders, unwritten timing rules, who signs what, and what to do when normal approval routines break down.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 7: The Work, The Logic, The Experience -->
+      <section class="slide" data-slide="7">
+        <span class="slide-badge">Core Concept</span>
+        <h2 class="slide-title">Document the "How" and "Why", Not Only What Happens</h2>
+        <p class="slide-subtitle">A robust process document covers three distinct operational tiers:</p>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title">1. The Work</h3>
+              <ul class="styled-list">
+                <li>Specific process steps.</li>
+                <li>Inputs required.</li>
+                <li>Expected outputs.</li>
+                <li>Designated responsibilities.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">2. The Logic</h3>
+              <ul class="styled-list">
+                <li>Crucial decision branches.</li>
+                <li>Required statutory approvals.</li>
+                <li>Cross-cadre dependencies.</li>
+                <li>Timelines and legal deadlines.</li>
+              </ul>
+            </div>
+            <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">3. The Experience</h3>
+              <ul class="styled-list">
+                <li>Handling routine exceptions.</li>
+                <li>Frequent failure points.</li>
+                <li>Escalation pathways.</li>
+                <li>Critical institutional contacts.</li>
+                <li>Hard-earned practical lessons.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 8: Task vs Process -->
+      <section class="slide" data-slide="8">
+        <span class="slide-badge">Process Thinking</span>
+        <h2 class="slide-title">A Task Becomes a Process When You Map Every Stage Around It</h2>
+        <p class="slide-subtitle"><em>“Prepare monthly report”</em> is merely a task. The actual civil service process spans before and after drafting:</p>
+        <div class="slide-body">
+          <div class="steps-chain">
+            <div class="step-node"><div class="step-idx">01</div><div class="step-name">Collect Info</div></div>
+            <div class="step-node"><div class="step-idx">02</div><div class="step-name">Verify</div></div>
+            <div class="step-node"><div class="step-idx">03</div><div class="step-name">Analyse</div></div>
+            <div class="step-node"><div class="step-idx">04</div><div class="step-name">Draft Report</div></div>
+            <div class="step-node"><div class="step-idx">05</div><div class="step-name">Review</div></div>
+            <div class="step-node"><div class="step-idx">06</div><div class="step-name">Approve</div></div>
+            <div class="step-node"><div class="step-idx">07</div><div class="step-name">Submit</div></div>
+            <div class="step-node"><div class="step-idx">08</div><div class="step-name">File Record</div></div>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 1rem;">
+            Notice that drafting (04) is only 12% of the real journey. The bottlenecks almost always sit in Verification (02), Approval (06), and Filing (08).
+          </p>
+        </div>
+      </section>
+
+      <!-- SLIDE 9: Visualizing Process Maps -->
+      <section class="slide" data-slide="9">
+        <span class="slide-badge">Mapping Foundations</span>
+        <h2 class="slide-title">What a Process Map Shows</h2>
+        <p class="slide-subtitle">A process map shows what happens, in what sequence, by whom, and with what verified result.</p>
+        <div class="slide-body">
+          <div style="background: #f8fafc; border: 1px dashed var(--lasg-green); padding: 1.5rem; border-radius: 12px; text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+              <div style="padding: 0.6rem 1rem; background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 6px; font-weight: 600;">Trigger / Input</div>
+              <span>➡️</span>
+              <div style="padding: 0.6rem 1rem; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px;">Step 1: Check</div>
+              <span>➡️</span>
+              <div style="padding: 0.6rem 1rem; background: #fef3c7; border: 1px solid #fcd34d; border-radius: 6px; font-weight: 700;">Decision: Ready?</div>
+              <span>➡️</span>
+              <div style="padding: 0.6rem 1rem; background: #dcfce7; border: 1px solid #86efac; border-radius: 6px;">Step 2: Endorsement</div>
+              <span>➡️</span>
+              <div style="padding: 0.6rem 1rem; background: #dcfce7; border: 1px solid #86efac; border-radius: 6px; font-weight: 700;">Final Output</div>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.85rem; color: #64748b;">
+              Loops back when <em>Not Ready</em>: Resolve deficiencies and re-check before proceeding.
+            </p>
+          </div>
+          <div class="flow-ribbon" style="margin-top: 1.5rem;">
+            <span>Trigger</span> <span class="flow-arrow">→</span>
+            <span>Activities</span> <span class="flow-arrow">→</span>
+            <span>Decision Points</span> <span class="flow-arrow">→</span>
+            <span>Outputs &amp; Records</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 10: 11 Mapping Questions -->
+      <section class="slide" data-slide="10">
+        <span class="slide-badge">Tool 1: Elicitation</span>
+        <h2 class="slide-title">Eleven Questions to Map Any Government Process</h2>
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="card">
+              <ul class="styled-list">
+                <li><strong>1. What starts it?</strong> (The triggering memo, directive, or date).</li>
+                <li><strong>2. What inputs/documents are needed?</strong></li>
+                <li><strong>3. What happens first?</strong></li>
+                <li><strong>4. What comes next?</strong></li>
+                <li><strong>5. Who is responsible?</strong> (Designation, not person's name).</li>
+                <li><strong>6. Where is a decision made?</strong></li>
+              </ul>
+            </div>
+            <div class="card">
+              <ul class="styled-list">
+                <li><strong>7. What statutory approval is required?</strong></li>
+                <li><strong>8. What usually delays or stalls it?</strong></li>
+                <li><strong>9. What happens when something goes wrong?</strong></li>
+                <li><strong>10. What is the final output?</strong></li>
+                <li><strong>11. Where is the official record archived?</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 11: The Experienced Layer -->
+      <section class="slide" data-slide="11">
+        <span class="slide-badge">Tacit Integration</span>
+        <h2 class="slide-title">The Complete Process = Written Rules + Experienced Knowledge</h2>
+        <p class="slide-subtitle">Experienced civil servants know the nuances that official handbooks never document.</p>
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="card" style="border-left: 4px solid #ef4444;">
+              <h4 style="color: #991b1b; margin-bottom: 0.5rem;">Where Work Becomes Difficult</h4>
+              <ul class="styled-list">
+                <li>Known departmental bottlenecks.</li>
+                <li>Recurring clerical and computational errors.</li>
+                <li>Early warning signs of stalled approvals.</li>
+                <li>Cross-MDA file dependencies.</li>
+              </ul>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--lasg-green);">
+              <h4 style="color: var(--lasg-dark-green); margin-bottom: 0.5rem;">How Experience Guides Action</h4>
+              <ul class="styled-list">
+                <li>Critical unwritten sequencing rules.</li>
+                <li>Legitimate, practical operational workarounds.</li>
+                <li>Extra verification steps before executive review.</li>
+                <li>Decisions requiring nuanced discretionary judgement.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 1rem; background: #fffbeb; border-color: #fde68a; text-align: center;">
+            <p style="font-weight: 700; color: #92400e; font-size: 1rem;">
+              The Ultimate Knowledge Question: “What would a new officer discover only after making an embarrassing mistake?”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 12: What is an SOP? -->
+      <section class="slide" data-slide="12">
+        <span class="slide-badge">Operational Standardization</span>
+        <h2 class="slide-title">Tool 2: Standard Operating Procedure (SOP)</h2>
+        <div class="slide-body">
+          <div class="card" style="border-left: 5px solid var(--lasg-green); padding: 1.5rem; margin-bottom: 1.5rem;">
+            <h3 style="color: var(--lasg-dark-green); font-size: 1.25rem; margin-bottom: 0.5rem;">Definition</h3>
+            <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-main);">
+              A Standard Operating Procedure (SOP) is an authorized, practical document explaining step-by-step how a recurring process is carried out consistently to maintain institutional standards.
+            </p>
+          </div>
+          <div class="compare-container">
+            <div class="card">
+              <h4 style="color: var(--lasg-dark-green); margin-bottom: 0.5rem;">What an SOP Should Be</h4>
+              <p class="card-p">Operational, clear, practical, numbered, unambiguous, and usable by any desk officer across the cadre.</p>
+            </div>
+            <div class="card">
+              <h4 style="color: #b91c1c; margin-bottom: 0.5rem;">What an SOP Should NOT Be</h4>
+              <p class="card-p">A reproduction of legal statutes, verbose administrative prose, vague generalities, or purely bureaucratic theory.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 13: 11 Parts of an SOP -->
+      <section class="slide" data-slide="13">
+        <span class="slide-badge">Tool 2: Structure</span>
+        <h2 class="slide-title">The Eleven Essential Sections of a Complete SOP</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card"><span class="card-num">1</span> <strong>Title:</strong> Unambiguous name</div>
+            <div class="card"><span class="card-num">2</span> <strong>Purpose:</strong> Why this exists</div>
+            <div class="card"><span class="card-num">3</span> <strong>Scope:</strong> Who &amp; what it applies to</div>
+            <div class="card"><span class="card-num">4</span> <strong>Responsible Role:</strong> Specific desk/cadre</div>
+            <div class="card"><span class="card-num">5</span> <strong>Inputs / Requirements:</strong> Prerequisites</div>
+            <div class="card"><span class="card-num">6</span> <strong>Procedure Steps:</strong> Numbered actions</div>
+            <div class="card"><span class="card-num">7</span> <strong>Decision Points:</strong> Clear thresholds</div>
+            <div class="card"><span class="card-num">8</span> <strong>Exceptions:</strong> Fallback actions</div>
+            <div class="card"><span class="card-num">9</span> <strong>Key Controls &amp; Checks:</strong> QA sign-offs</div>
+            <div class="card"><span class="card-num">10</span> <strong>Records &amp; Outputs:</strong> Proof of work</div>
+            <div class="card"><span class="card-num">11</span> <strong>Review Information:</strong> Expiry &amp; version</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 14: Weak vs Useful SOP -->
+      <section class="slide" data-slide="14">
+        <span class="slide-badge">Quality Benchmark</span>
+        <h2 class="slide-title">A Useful SOP vs A Weak SOP</h2>
+        <div class="slide-body">
+          <div class="compare-container">
+            <div class="compare-box box-bad">
+              <h4>❌ A Weak SOP</h4>
+              <ul class="styled-list">
+                <li>Vague, generic instructions ("handle as needed").</li>
+                <li>Overly long, unbroken paragraphs of dense text.</li>
+                <li>Unclear designations and floating responsibilities.</li>
+                <li>Unexplained departmental acronyms and jargon.</li>
+                <li>Fails to account for exceptions or delays.</li>
+                <li>Assumes the reader already knows the unwritten rules.</li>
+              </ul>
+            </div>
+            <div class="compare-box box-good">
+              <h4>✅ A Useful SOP</h4>
+              <ul class="styled-list">
+                <li>Clear, concise, and logically structured.</li>
+                <li>Practical, action-oriented, and specific.</li>
+                <li>Easy to follow under operational pressure.</li>
+                <li>Names exact job titles and responsible units.</li>
+                <li>Explicitly addresses delays, failures, and escalations.</li>
+                <li>Tested and validated by a neutral peer officer.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 15: Plain Language in Documentation -->
+      <section class="slide" data-slide="15">
+        <span class="slide-badge">Drafting Standard</span>
+        <h2 class="slide-title">Writing in Plain, Usable Language</h2>
+        <p class="slide-subtitle">Clear writing prevents costly civil service administrative errors.</p>
+        <div class="slide-body">
+          <div class="compare-container" style="margin-bottom: 1.5rem;">
+            <div class="card" style="border-left: 4px solid #ef4444;">
+              <h4 style="color: #991b1b; margin-bottom: 0.5rem;">Avoid in SOP Drafting</h4>
+              <p class="card-p">Complex bureaucratic sentences, passive voice, undefined abbreviations, and circular instructions.</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--lasg-green);">
+              <h4 style="color: var(--lasg-dark-green); margin-bottom: 0.5rem;">Prefer in SOP Drafting</h4>
+              <p class="card-p">Direct verbs, short declarative sentences, numbered steps, and concrete conditions.</p>
+            </div>
+          </div>
+          <div class="compare-box box-bad" style="margin-bottom: 0.75rem;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: #b91c1c; text-transform: uppercase;">Instead of (Bureaucratic Fog):</span>
+            <p style="font-size: 1.05rem; font-style: italic; color: #7f1d1d; margin-top: 0.25rem;">
+              “Necessary documentation should be appropriately processed and endorsed accordingly prior to onward transmission.”
+            </p>
+          </div>
+          <div class="compare-box box-good">
+            <span style="font-size: 0.75rem; font-weight: 700; color: var(--lasg-dark-green); text-transform: uppercase;">Write (Actionable Instruction):</span>
+            <p style="font-size: 1.05rem; font-weight: 600; color: var(--lasg-dark-green); margin-top: 0.25rem;">
+              “Verify all required attachments against Checklist A before forwarding the docket to the Director for endorsement.”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 16: Tool 3: Desk File Structure -->
+      <section class="slide" data-slide="16">
+        <span class="slide-badge">Tool 3: Knowledge Repository</span>
+        <h2 class="slide-title">A Desk File is an Operational Knowledge Resource, Not a Storage Folder</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title">1. Role &amp; Routine</h3>
+              <ul class="styled-list">
+                <li>Key statutory responsibilities.</li>
+                <li>Recurring operational workflows.</li>
+                <li>Statutory reporting schedules.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">2. Operational Resources</h3>
+              <ul class="styled-list">
+                <li>Approved template library.</li>
+                <li>Official directories &amp; MDA interfaces.</li>
+                <li>Core policy reference documents.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">3. Live Working Knowledge</h3>
+              <ul class="styled-list">
+                <li>Current active dockets &amp; tasks.</li>
+                <li>Known recurring bottlenecks.</li>
+                <li>Latest formal handover dossier.</li>
+              </ul>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">
+            Rule of Thumb: Do not accumulate obsolete copies. Organize the desk file so an incoming officer can locate any critical resource within 90 seconds.
+          </p>
+        </div>
+      </section>
+
+      <!-- SLIDE 17: Tool 4: SOP vs Checklist vs Job Aid -->
+      <section class="slide" data-slide="17">
+        <span class="slide-badge">Tool 4: Triad Comparison</span>
+        <h2 class="slide-title">An SOP, a Checklist, and a Job Aid Answer Three Different Needs</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">SOP</h3>
+              <p style="font-weight: 600; color: #475569; margin-bottom: 0.5rem; font-size: 0.85rem;">“How is the entire process performed?”</p>
+              <ul class="styled-list">
+                <li>Comprehensive title &amp; purpose.</li>
+                <li>Sequential numbered instructions.</li>
+                <li>Explicit decision branches &amp; exceptions.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">Checklist</h3>
+              <p style="font-weight: 600; color: #475569; margin-bottom: 0.5rem; font-size: 0.85rem;">“Have I completed every mandatory step?”</p>
+              <ul class="styled-list">
+                <li>Step-by-step verification points.</li>
+                <li>Pass/fail quality checks.</li>
+                <li>Official sign-off &amp; completion trail.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">Job Aid</h3>
+              <p style="font-weight: 600; color: #475569; margin-bottom: 0.5rem; font-size: 0.85rem;">“What must I keep in mind right now?”</p>
+              <ul class="styled-list">
+                <li>Quick visual reference on the desk.</li>
+                <li>Key reminders &amp; formula cheat-sheets.</li>
+                <li>Critical telephone extensions &amp; contacts.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 18: Effective Handover Core Meaning -->
+      <section class="slide" data-slide="18">
+        <span class="slide-badge">Succession Principles</span>
+        <h2 class="slide-title">A Handover Transfers Responsibility, Context &amp; Continuity — Not Just Physical Files</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title">Current Position</h3>
+              <ul class="styled-list">
+                <li>Completed work.</li>
+                <li>Ongoing assignments.</li>
+                <li>Pending files &amp; dockets.</li>
+                <li>Non-negotiable deadlines.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Context &amp; Risk</h3>
+              <ul class="styled-list">
+                <li>Inter-agency dependencies.</li>
+                <li>Known risks &amp; contentious issues.</li>
+                <li>Key institutional contacts.</li>
+                <li>Sensitive stakeholder nuances.</li>
+              </ul>
+            </div>
+            <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">Continuity Plan</h3>
+              <ul class="styled-list">
+                <li>Vital reference records.</li>
+                <li>Immediate next 48-hour actions.</li>
+                <li>Clarity on who holds what file.</li>
+                <li>Formal debrief schedule.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 19: Tool 5: Handover Checklist (Before, During, After) -->
+      <section class="slide" data-slide="19">
+        <span class="slide-badge">Tool 5: Lifecycle</span>
+        <h2 class="slide-title">The Three Phases of an Effective Handover</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title">Phase 1: Before</h3>
+              <ul class="styled-list">
+                <li>Review statutory responsibilities.</li>
+                <li>Compile list of outstanding tasks.</li>
+                <li>Organize files, keys, and credentials.</li>
+                <li>Update status report on active dockets.</li>
+                <li>Document sensitive stakeholder contacts.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Phase 2: During</h3>
+              <ul class="styled-list">
+                <li>Conduct structured walkthrough.</li>
+                <li>Explain operational priorities.</li>
+                <li>Highlight known bottlenecks &amp; risks.</li>
+                <li>Answer incoming officer's questions.</li>
+                <li>Sign formal handover certificate.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">Phase 3: After</h3>
+              <ul class="styled-list">
+                <li>Review received records independently.</li>
+                <li>Schedule follow-up call for clarifications.</li>
+                <li>Verify access permissions &amp; dockets.</li>
+                <li>Escalate unresolved inherited disputes.</li>
+                <li>Begin execution without operational lag.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 20: 7 Steps of a Handover Meeting -->
+      <section class="slide" data-slide="20">
+        <span class="slide-badge">Protocol</span>
+        <h2 class="slide-title">The Seven Steps of a Professional Handover Meeting</h2>
+        <div class="slide-body">
+          <div class="steps-chain">
+            <div class="step-node"><div class="step-idx">01</div><div class="step-name">Purpose</div></div>
+            <div class="step-node"><div class="step-idx">02</div><div class="step-name">Responsibilities</div></div>
+            <div class="step-node"><div class="step-idx">03</div><div class="step-name">Current Status</div></div>
+            <div class="step-node"><div class="step-idx">04</div><div class="step-name">Critical Knowledge</div></div>
+            <div class="step-node"><div class="step-idx">05</div><div class="step-name">Risks &amp; Exceptions</div></div>
+            <div class="step-node"><div class="step-idx">06</div><div class="step-name">Clarification Q&amp;A</div></div>
+            <div class="step-node"><div class="step-idx">07</div><div class="step-name">Agreed Actions</div></div>
+          </div>
+          <div class="card" style="margin-top: 1.5rem; background: #fffbeb; border-color: #fde68a;">
+            <p style="font-size: 0.95rem; color: #92400e; font-weight: 600;">
+              Golden Rule: Never conclude a handover meeting on "assumed understanding." End with explicitly written, signed next steps and mutual acknowledgement.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 21: Receiving a Handover -->
+      <section class="slide" data-slide="21">
+        <span class="slide-badge">Successor Mindset</span>
+        <h2 class="slide-title">Receiving a Handover is an Active Elicitation Responsibility</h2>
+        <p class="slide-subtitle">A passive successor inherits preventable emergencies. The receiver must drive the transfer:</p>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card">
+              <h3 class="card-title">1. ASK</h3>
+              <p style="font-weight: 600; color: #475569; font-size: 0.85rem;">Clarify Scope</p>
+              <ul class="styled-list">
+                <li>Probe unclear procedures.</li>
+                <li>Verify non-negotiable deadlines.</li>
+                <li>Identify key external stakeholders.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">2. VERIFY</h3>
+              <p style="font-weight: 600; color: #475569; font-size: 0.85rem;">Check Understanding</p>
+              <ul class="styled-list">
+                <li>Examine files and sample dockets.</li>
+                <li>Test assumptions directly.</li>
+                <li>Explain the workflow back to the outgoing officer.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title">3. RESOLVE</h3>
+              <p style="font-weight: 600; color: #475569; font-size: 0.85rem;">Close the Gaps</p>
+              <ul class="styled-list">
+                <li>Flag missing records immediately.</li>
+                <li>Identify unaddressed legacy disputes.</li>
+                <li>Agree on follow-up communication protocol.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 22: Case Study -->
+      <section class="slide" data-slide="22">
+        <span class="slide-badge">Group Case Study</span>
+        <h2 class="slide-title">“The Process That Only One Person Knows”</h2>
+        <div class="slide-body">
+          <div class="card" style="background: #fdfdf9; border-left: 5px solid #d97706; margin-bottom: 1rem;">
+            <p style="font-size: 1rem; line-height: 1.5; color: #78350f;">
+              <strong>The Dilemma:</strong> A strategic unit in a Lagos State MDA relies exclusively on one experienced officer to coordinate a recurring statutory review process. The officer is being deployed to another ministry in 5 days. Some file folders exist, but there is no process map, no written SOP, and no structured handover note. The newly posted replacement must take over without a drop in service delivery.
+            </p>
+          </div>
+          <div class="exercise-box">
+            <div class="exercise-grid">
+              <div class="exercise-item"><span class="exercise-label">Task</span>Identify knowledge at risk, prioritized documentation, and post-handover plan.</div>
+              <div class="exercise-item"><span class="exercise-label">Time</span>15 Minutes</div>
+              <div class="exercise-item"><span class="exercise-label">Grouping</span>Small syndicate groups</div>
+              <div class="exercise-item"><span class="exercise-label">Output</span>Prioritized documentation roadmap</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 23: Group Exercise: Process Mapping -->
+      <section class="slide" data-slide="23">
+        <span class="slide-badge">Practical Lab 1</span>
+        <h2 class="slide-title">Group Exercise: Map a Real Lagos State Process</h2>
+        <div class="slide-body">
+          <div class="exercise-box" style="margin-top: 0;">
+            <div class="exercise-grid">
+              <div class="exercise-item"><span class="exercise-label">Task</span>Select one recurring process from your MDA/unit and map it completely from start to finish.</div>
+              <div class="exercise-item"><span class="exercise-label">Time</span>25 to 30 Minutes</div>
+              <div class="exercise-item"><span class="exercise-label">Grouping</span>Syndicate teams by MDA or unit</div>
+              <div class="exercise-item"><span class="exercise-label">Deliverable</span>One complete visual &amp; tabular process map</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 1.25rem;">
+            <h4 style="color: var(--lasg-dark-green); margin-bottom: 0.5rem;">Mandatory Criteria for Your Map:</h4>
+            <ul class="styled-list">
+              <li>Must clearly identify the <strong>trigger</strong> that starts the work.</li>
+              <li>Must show at least <strong>one critical decision diamond</strong> (Pass/Fail).</li>
+              <li>Must capture at least <strong>one unwritten tacit bottleneck</strong> learned from experience.</li>
+              <li>Must show where the final archival record resides.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 24: Tool 1: Template -->
+      <section class="slide" data-slide="24">
+        <span class="slide-badge">Tool 1: Working Canvas</span>
+        <h2 class="slide-title">Process Mapping Worksheet (Tool 1)</h2>
+        <div class="slide-body">
+          <div class="table-wrapper">
+            <table class="data-tbl">
+              <thead>
+                <tr>
+                  <th style="width: 8%;">Step</th>
+                  <th style="width: 22%;">Activity</th>
+                  <th style="width: 15%;">Responsible Role</th>
+                  <th style="width: 15%;">Input Needed</th>
+                  <th style="width: 15%;">Decision / Check</th>
+                  <th style="width: 12%;">Output</th>
+                  <th style="width: 13%;">Risk / Exception</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>01</strong></td>
+                  <td>Receipt of Memo</td>
+                  <td>Registry Clerk</td>
+                  <td>Inward Dispatch Memo</td>
+                  <td>Is docket properly stamped?</td>
+                  <td>Entered in Register</td>
+                  <td>Missing tracking docket</td>
+                </tr>
+                <tr>
+                  <td><strong>02</strong></td>
+                  <td>Technical Vetting</td>
+                  <td>Desk Officer</td>
+                  <td>Audit checklist</td>
+                  <td>Meets statutory criteria?</td>
+                  <td>Vetting note</td>
+                  <td>Incomplete receipts</td>
+                </tr>
+                <tr>
+                  <td><strong>03</strong></td>
+                  <td>Endorsement</td>
+                  <td>Head of Unit</td>
+                  <td>Vetted docket</td>
+                  <td>Approve or Query?</td>
+                  <td>Signed Minute</td>
+                  <td>Signatory unavailable</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">
+            *Use exact civil service cadre/designation titles rather than personal names of current officers.
+          </p>
+        </div>
+      </section>
+
+      <!-- SLIDE 25: Map to SOP Translation -->
+      <section class="slide" data-slide="25">
+        <span class="slide-badge">Methodology</span>
+        <h2 class="slide-title">Translating a Process Map into an SOP</h2>
+        <p class="slide-subtitle">Use your visual map as the operational foundation of the written procedure:</p>
+        <div class="slide-body">
+          <div class="grid-3" style="margin-top: 1rem;">
+            <div class="card" style="text-align: center;">
+              <h3 class="card-title" style="color: #475569;">1. Process Map</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                See the visual sequence: inputs, roles, flowchart, decision checkpoints, and outputs.
+              </p>
+            </div>
+            <div class="card" style="text-align: center; border-color: var(--lasg-accent); background: #fdfdf9;">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">2. Translation Layer</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                Add the operational <strong>how</strong> and <strong>why</strong>: exceptions, standards, and troubleshooting advice.
+              </p>
+            </div>
+            <div class="card" style="text-align: center; border-color: var(--lasg-green); background: #f0fdf4;">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">3. Final SOP</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+                Unambiguous, numbered instructions ready for execution across the entire service.
+              </p>
+            </div>
+          </div>
+          <div class="flow-ribbon" style="margin-top: 2rem;">
+            <span>Map It Visually</span> <span class="flow-arrow">→</span>
+            <span>Document the Actions</span> <span class="flow-arrow">→</span>
+            <span>Simplify the Language</span> <span class="flow-arrow">→</span>
+            <span>Validate with Peers</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 26: Practical Exercise: Draft SOP -->
+      <section class="slide" data-slide="26">
+        <span class="slide-badge">Practical Lab 2</span>
+        <h2 class="slide-title">Group Exercise: Draft the SOP from Your Process Map</h2>
+        <div class="slide-body">
+          <div class="exercise-box" style="margin-top: 0;">
+            <div class="exercise-grid">
+              <div class="exercise-item"><span class="exercise-label">Task</span>Draft a concise Standard Operating Procedure using the 11-part format.</div>
+              <div class="exercise-item"><span class="exercise-label">Time</span>25 to 30 Minutes</div>
+              <div class="exercise-item"><span class="exercise-label">Grouping</span>Same syndicate groups</div>
+              <div class="exercise-item"><span class="exercise-label">Deliverable</span>One complete draft SOP ready for peer test</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 1.25rem; border-left: 4px solid var(--lasg-green);">
+            <h4 style="color: var(--lasg-dark-green); margin-bottom: 0.5rem;">The Golden Litmus Test:</h4>
+            <p style="font-size: 1.1rem; color: var(--text-main); font-weight: 500;">
+              “Could another competent civil servant follow your instructions without coming to your desk to ask for clarification on each step?”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 27: Tool 6: Handover Template -->
+      <section class="slide" data-slide="27">
+        <span class="slide-badge">Tool 6: Template</span>
+        <h2 class="slide-title">The Institutional Handover Template (Tool 6)</h2>
+        <div class="slide-body">
+          <div class="table-wrapper">
+            <table class="data-tbl">
+              <thead>
+                <tr>
+                  <th style="width: 50%;">Handover Field</th>
+                  <th style="width: 50%;">Operational Details to Complete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><strong>Outgoing Officer &amp; Role</strong></td><td>Name, current designation, department, effective exit date</td></tr>
+                <tr><td><strong>Incoming / Receiving Officer</strong></td><td>Name, incoming cadre/designation, reporting date</td></tr>
+                <tr><td><strong>Primary Responsibilities</strong></td><td>Statutory terms of reference and core portfolio duties</td></tr>
+                <tr><td><strong>Current &amp; Pending Tasks</strong></td><td>Active dockets, status (completed/in-progress), next milestone</td></tr>
+                <tr><td><strong>Critical Upcoming Deadlines</strong></td><td>Budget submissions, statutory reports, cabinet memos due</td></tr>
+                <tr><td><strong>Key Contacts &amp; Networks</strong></td><td>Key stakeholders, phone numbers, liaison officers in other MDAs</td></tr>
+                <tr><td><strong>Risks, Bottlenecks &amp; Exceptions</strong></td><td>Known file landmines, sensitive files, recurring audit queries</td></tr>
+                <tr><td><strong>Immediate Next Actions</strong></td><td>What the successor must do in the first 48 to 72 hours</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 28: Practical Exercise: Handover -->
+      <section class="slide" data-slide="28">
+        <span class="slide-badge">Practical Lab 3</span>
+        <h2 class="slide-title">Exercise: Complete a Handover for a Hypothetical Transfer</h2>
+        <div class="slide-body">
+          <div class="exercise-box" style="margin-top: 0;">
+            <div class="exercise-grid">
+              <div class="exercise-item"><span class="exercise-label">Task</span>Using the process mapped in Lab 1, complete Tool 6 as if leaving the post tomorrow.</div>
+              <div class="exercise-item"><span class="exercise-label">Time</span>15 to 20 Minutes</div>
+              <div class="exercise-item"><span class="exercise-label">Grouping</span>Pairs (Outgoing Officer &amp; Successor)</div>
+              <div class="exercise-item"><span class="exercise-label">Deliverable</span>One signed, completed Handover Dossier</div>
+            </div>
+          </div>
+          <div class="card" style="margin-top: 1.5rem; background: #fffbeb; border-color: #fde68a;">
+            <h4 style="color: #92400e; margin-bottom: 0.5rem;">Debrief Question to Keep in Mind:</h4>
+            <p style="font-size: 1rem; color: #78350f;">
+              What piece of information was the hardest to articulate and put into writing? Why?
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 29: Debrief -->
+      <section class="slide" data-slide="29">
+        <span class="slide-badge">Plenary Reflection</span>
+        <h2 class="slide-title">Debrief: What Did We Discover?</h2>
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="card">
+              <h3 class="card-title" style="color: #b91c1c;">Writing the Process</h3>
+              <ul class="styled-list">
+                <li>What was deceptively easy to write down?</li>
+                <li>What was surprisingly difficult to explain clearly?</li>
+                <li>What critical knowledge was completely invisible in the original formal manual?</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 class="card-title" style="color: var(--lasg-dark-green);">Applying the Knowledge</h3>
+              <ul class="styled-list">
+                <li>Where did tacit personal experience matter most?</li>
+                <li>Where could an incoming officer misunderstand the steps?</li>
+                <li>What is the single most critical gap you need to document when you return to your MDA?</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 30: The Continuity Test -->
+      <section class="slide" data-slide="30">
+        <span class="slide-badge">Institutional Benchmark</span>
+        <h2 class="slide-title">Documentation is Valuable Only When Someone Else Can Use It</h2>
+        <div class="slide-body">
+          <div class="steps-chain" style="margin: 2rem 0;">
+            <div class="step-node"><div class="step-idx">01</div><div class="step-name">Experience</div></div>
+            <div class="step-node"><div class="step-idx">02</div><div class="step-name">Knowledge</div></div>
+            <div class="step-node"><div class="step-idx">03</div><div class="step-name">Process Map</div></div>
+            <div class="step-node"><div class="step-idx">04</div><div class="step-name">SOP / Tool</div></div>
+            <div class="step-node"><div class="step-idx">05</div><div class="step-name">Handover</div></div>
+            <div class="step-node"><div class="step-idx">06</div><div class="step-name">Successor</div></div>
+            <div class="step-node" style="border-left-color: var(--lasg-accent); background: #fdfdf9;">
+              <div class="step-idx" style="color: #92400e;">07</div>
+              <div class="step-name" style="color: var(--lasg-dark-green);">Continuity</div>
+            </div>
+          </div>
+          <div class="card" style="text-align: center; border-left: 5px solid var(--lasg-green); background: #f0fdf4;">
+            <p style="font-size: 1.15rem; font-weight: 600; color: var(--lasg-dark-green);">
+              The ultimate test of institutional documentation is not its length or legalistic language—it is whether the next officer can pick it up on Monday morning and execute without panic.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 31: Three Tangible Outputs -->
+      <section class="slide" data-slide="31">
+        <span class="slide-badge">Session Recap</span>
+        <h2 class="slide-title">You Leave Today with Three Tangible Tools</h2>
+        <div class="slide-body">
+          <div class="grid-3">
+            <div class="card" style="border-top: 4px solid var(--lasg-green);">
+              <span class="card-num">1</span>
+              <h3 class="card-title">A Mapped Process</h3>
+              <p class="card-p">Workflows, decision forks, responsibilities, and unwritten knowledge-risk points are made visible to everyone.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--lasg-green);">
+              <span class="card-num">2</span>
+              <h3 class="card-title">A Draft SOP</h3>
+              <p class="card-p">The map is translated into practical, numbered, unambiguous instructions, checklists, and exception routes.</p>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--lasg-green);">
+              <span class="card-num">3</span>
+              <h3 class="card-title">A Completed Handover</h3>
+              <p class="card-p">Current dockets, context, stakeholders, deadlines, and 48-hour next steps are ready for validation.</p>
+            </div>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center; margin-top: 1.5rem;">
+            <em>These are practical assets for immediate institutional use in your ministry, department, or agency—not classroom exercises.</em>
+          </p>
+        </div>
+      </section>
+
+      <!-- SLIDE 32: Seven Takeaways -->
+      <section class="slide" data-slide="32">
+        <span class="slide-badge">Core Principles</span>
+        <h2 class="slide-title">Seven Takeaways from Session 4</h2>
+        <div class="slide-body">
+          <div class="grid-2">
+            <div class="card">
+              <ul class="styled-list">
+                <li><strong>1.</strong> Critical public service knowledge must never depend on a single individual.</li>
+                <li><strong>2.</strong> Process mapping makes unwritten workflows visible and open to audit.</li>
+                <li><strong>3.</strong> SOPs convert tacit experience into standardized, repeatable instructions.</li>
+                <li><strong>4.</strong> Desk files, checklists, and job aids make knowledge easy to apply under pressure.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <ul class="styled-list">
+                <li><strong>5.</strong> Handover transfers context, relationships, and continuity—not merely paper files.</li>
+                <li><strong>6.</strong> Receiving a handover is an active elicitation exercise; validate, verify, and resolve.</li>
+                <li><strong>7.</strong> Documentation must remain practical, living, and regularly maintained.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SLIDE 33: Next Step Bridge -->
+      <section class="slide" data-slide="33">
+        <span class="slide-badge">Programme Continuum</span>
+        <h2 class="slide-title">Identify → Map → Document → Simplify → Hand Over → Validate → Continue</h2>
+        <div class="slide-body">
+          <div class="card" style="text-align: center; padding: 2rem; background: #f8fafc; border: 2px dashed #94a3b8; margin: 1.5rem 0;">
+            <span style="font-size: 0.9rem; font-weight: 700; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase;">Up Next in Session 5</span>
+            <h3 style="font-size: 2rem; color: var(--lasg-dark-green); margin-top: 0.5rem;">Mentoring, Shadowing &amp; Peer Learning</h3>
+            <p style="font-size: 1.05rem; color: var(--text-muted); margin-top: 0.5rem; max-width: 650px; margin-left: auto; margin-right: auto;">
+              Now that processes are mapped and documented, how do we pass on the interpersonal artistry and wisdom through structured civil service apprenticeships?
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer class="deck-nav">
+      <div class="nav-controls">
+        <button id="btn-prev" class="btn-nav">← Previous</button>
+        <button id="btn-next" class="btn-nav">Next →</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <span class="slide-counter" id="slide-indicator">Slide 1 of 33</span>
+        <select class="slide-select" id="slide-dropdown" aria-label="Jump to slide"></select>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const slides = document.querySelectorAll('.slide');
+      const totalSlides = slides.length;
+      let currentIndex = 0;
+
+      const btnPrev = document.getElementById('btn-prev');
+      const btnNext = document.getElementById('btn-next');
+      const slideIndicator = document.getElementById('slide-indicator');
+      const slideDropdown = document.getElementById('slide-dropdown');
+      const progressBar = document.getElementById('progress-bar');
+      const toggleViewBtn = document.getElementById('toggle-view');
+      const fullscreenBtn = document.getElementById('btn-fullscreen');
+
+      // Populate Jump-to-Slide Dropdown
+      slides.forEach((slide, idx) => {
+        const option = document.createElement('option');
+        option.value = idx;
+        const titleText = slide.querySelector('.slide-title')?.innerText || `Slide ${idx + 1}`;
+        option.textContent = `${idx + 1}. ${titleText.substring(0, 32)}...`;
+        slideDropdown.appendChild(option);
+      });
+
+      function updateSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= totalSlides) index = totalSlides - 1;
+        currentIndex = index;
+
+        slides.forEach((slide, idx) => {
+          slide.classList.toggle('active', idx === currentIndex);
+        });
+
+        // Update UI Controls
+        btnPrev.disabled = currentIndex === 0;
+        btnNext.disabled = currentIndex === totalSlides - 1;
+        slideIndicator.textContent = `Slide ${currentIndex + 1} of ${totalSlides}`;
+        slideDropdown.value = currentIndex;
+
+        const progressPercent = ((currentIndex + 1) / totalSlides) * 100;
+        progressBar.style.width = `${progressPercent}%`;
+
+        // Scroll slide content to top
+        slides[currentIndex].scrollTop = 0;
+      }
+
+      // Event Listeners for Nav
+      btnPrev.addEventListener('click', () => updateSlide(currentIndex - 1));
+      btnNext.addEventListener('click', () => updateSlide(currentIndex + 1));
+
+      slideDropdown.addEventListener('change', (e) => {
+        updateSlide(parseInt(e.target.value, 10));
+      });
+
+      // Keyboard Controls
+      window.addEventListener('keydown', (e) => {
+        if (document.body.classList.contains('list-mode')) return;
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+          updateSlide(currentIndex + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          updateSlide(currentIndex - 1);
+        } else if (e.key === 'Home') {
+          updateSlide(0);
+        } else if (e.key === 'End') {
+          updateSlide(totalSlides - 1);
+        } else if (e.key.toLowerCase() === 'f') {
+          toggleFullScreen();
+        }
+      });
+
+      // Toggle Document / Reader View
+      toggleViewBtn.addEventListener('click', () => {
+        const isListMode = document.body.classList.toggle('list-mode');
+        if (isListMode) {
+          toggleViewBtn.textContent = '🖥️ Switch to Slide Deck View';
+        } else {
+          toggleViewBtn.textContent = '📄 Switch to Document View';
+          updateSlide(currentIndex);
+        }
+      });
+
+      // Fullscreen handler
+      function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(err => console.log(err));
+          fullscreenBtn.textContent = '✕ Exit Fullscreen';
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+            fullscreenBtn.textContent = '⛶ Fullscreen';
+          }
+        }
+      }
+      fullscreenBtn.addEventListener('click', toggleFullScreen);
+
+      // Initialize
+      updateSlide(0);
+    })();
+  </script>
+</body>
+</html>

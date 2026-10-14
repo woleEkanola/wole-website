@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Classroom Demonstration: Turning Experience into Process Tools</title>
+  <style>
+    :root {
+      --lasg-green: #0b6623;
+      --lasg-dark-green: #074317;
+      --lasg-accent: #d4af37;
+      --bg-dark: #0f172a;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Banner */
+    header.deck-header {
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--lasg-accent);
+      z-index: 10;
+    }
+
+    .header-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-sub {
+      font-size: 0.75rem;
+      color: var(--lasg-accent);
+      display: block;
+    }
+
+    .btn-tool {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .btn-tool:hover {
+      background: var(--lasg-green);
+    }
+
+    /* Stage Viewport */
+    main#viewport {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      background: radial-gradient(circle at top right, #1e293b, #0f172a);
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+      height: 100%;
+      max-height: 640px;
+      background: var(--card-bg);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      padding: 2.5rem 3rem;
+      overflow-y: auto;
+      flex-direction: column;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Typography & Badges */
+    .slide-badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: var(--lasg-dark-green);
+      border: 1px solid #a7f3d0;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--lasg-dark-green);
+      line-height: 1.2;
+      margin-bottom: 0.35rem;
+    }
+
+    .slide-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--lasg-dark-green);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Diagram Styles for Process Map */
+    .flowchart-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: #f8fafc;
+      border: 1px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem 0.75rem;
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+    }
+
+    .flow-node {
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      text-align: center;
+      min-width: 110px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    .flow-trigger { background: #e0f2fe; border: 1.5px solid #0284c7; font-weight: 700; color: #0369a1; }
+    .flow-action  { background: #ffffff; border: 1.5px solid #64748b; font-weight: 600; color: #1e293b; }
+    .flow-branch  { background: #fef3c7; border: 1.5px solid #d97706; font-weight: 700; color: #92400e; }
+    .flow-output  { background: #dcfce7; border: 1.5px solid #16a34a; font-weight: 700; color: #15803d; }
+
+    .flow-arrow {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      font-weight: 900;
+    }
+
+    /* Tables */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    table.data-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    table.data-tbl th {
+      background: #f1f5f9;
+      color: var(--lasg-dark-green);
+      font-weight: 700;
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.data-tbl td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    table.data-tbl tr:last-child td { border-bottom: none; }
+
+    /* Lists */
+    ul.styled-list {
+      list-style: none;
+      font-size: 0.85rem;
+    }
+
+    ul.styled-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.45rem;
+      line-height: 1.4;
+    }
+
+    ul.styled-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--lasg-green);
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    /* Navigation */
+    footer.deck-nav {
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .btn-nav {
+      background: var(--lasg-green);
+      border: none;
+      color: white;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .btn-nav:hover:not(:disabled) { background: #0d832d; }
+    .btn-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .slide-counter {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+
+    /* Document View Mode */
+    body.list-mode {
+      overflow-y: auto;
+      height: auto;
+    }
+
+    body.list-mode main#viewport {
+      display: block;
+      padding: 2rem 1rem;
+      height: auto;
+    }
+
+    body.list-mode .slide {
+      display: flex !important;
+      max-height: none;
+      margin: 0 auto 2.5rem auto;
+    }
+
+    body.list-mode footer.deck-nav {
+      display: none !important;
+    }
+
+    @media (max-width: 768px) {
+      .slide { padding: 1.5rem; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="deck-header">
+    <div>
+      <span class="header-title">Process Documentation in Practice</span>
+      <span class="header-sub">Classroom Exercise: The 3-Person Handover Chain</span>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button id="toggle-view" class="btn-tool">📄 Toggle Document View</button>
+      <button id="btn-fullscreen" class="btn-tool">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <main id="viewport">
+
+    <!-- SLIDE 1: PROCESS MAP -->
+    <section class="slide active" data-slide="1">
+      <span class="slide-badge">Slide 1 · Visual &amp; Tabular Map</span>
+      <h2 class="slide-title">The Process Map: Number Processing Chain</h2>
+      <p class="slide-subtitle">Visualizing triggers, operations, tacit physical checks, and the final output flow.</p>
+
+      <!-- Visual Flowchart -->
+      <div class="flowchart-container">
+        <div class="flow-node flow-trigger">
+          <strong>TRIGGER</strong><br>Facilitator gives seed number ($N$)
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node flow-action">
+          <strong>Person 1</strong><br>Always add 5<br>$(N + 5)$
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node flow-branch">
+          <strong>Person 2 Check</strong><br>Hands in pocket?<br><strong>Yes:</strong> +2 | <strong>No:</strong> +0
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node flow-branch">
+          <strong>Person 3 Check</strong><br>Arms folded?<br><strong>Yes:</strong> +1 | <strong>No:</strong> +0
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node flow-output">
+          <strong>FINAL OUTPUT</strong><br>Announce computed figure
+        </div>
+      </div>
+
+      <!-- Tabular Process Map -->
+      <div class="table-wrapper">
+        <table class="data-tbl">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Responsible Role</th>
+              <th>Input Received</th>
+              <th>Decision / Check</th>
+              <th>Action / Output</th>
+              <th>Risk / Tacit Exception</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>01</strong></td>
+              <td>Desk Officer 1 (Adder)</td>
+              <td>Base number ($N$) from Facilitator</td>
+              <td>None (Standard rule)</td>
+              <td>Adds 5; transmits $(N + 5)$ to Desk 2</td>
+              <td>Math slip or wrong entry transmission.</td>
+            </tr>
+            <tr>
+              <td><strong>02</strong></td>
+              <td>Desk Officer 2 (Pocket Assessor)</td>
+              <td>Calculated number from Desk 1</td>
+              <td><strong>Are Facilitator's hands in pockets?</strong></td>
+              <td>If YES: add 2.<br>If NO: forward number untouched.</td>
+              <td><strong>Tacit Risk:</strong> Looking at the docket instead of observing the Facilitator's posture.</td>
+            </tr>
+            <tr>
+              <td><strong>03</strong></td>
+              <td>Desk Officer 3 (Chest Assessor)</td>
+              <td>Calculated number from Desk 2</td>
+              <td><strong>Are Facilitator's hands folded to chest?</strong></td>
+              <td>If YES: add 1.<br>If NO: forward number untouched.</td>
+              <td><strong>Tacit Risk:</strong> Ambiguous stance (e.g., one hand touching chest vs. fully folded).</td>
+            </tr>
+            <tr>
+              <td><strong>04</strong></td>
+              <td>Final Reporting Desk</td>
+              <td>Final number from Desk 3</td>
+              <td>Verify final sum aloud</td>
+              <td>Declare final figure to plenary</td>
+              <td>Failure to validate before publication.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: THE STANDARD OPERATING PROCEDURE (SOP) -->
+    <section class="slide" data-slide="2">
+      <span class="slide-badge">Slide 2 · Operational Protocol</span>
+      <h2 class="slide-title">Standard Operating Procedure (SOP)</h2>
+      <p class="slide-subtitle">SOP-ADM-004: Sequential Value Modification &amp; Posture-Based Routing</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4 class="card-title">1. Purpose &amp; Scope</h4>
+          <p style="font-size: 0.85rem; color: #475569; margin-bottom: 0.75rem;">
+            To standardize the transmission and conditional modification of incoming integer values across three verification desks without calculation error or unrecorded omissions.
+          </p>
+
+          <h4 class="card-title">2. Responsible Roles</h4>
+          <ul class="styled-list">
+            <li><strong>Officer 1:</strong> Initial Processing &amp; Base Computation.</li>
+            <li><strong>Officer 2:</strong> Pocket State Verification.</li>
+            <li><strong>Officer 3:</strong> Chest Fold Posture Verification.</li>
+          </ul>
+
+          <h4 class="card-title" style="margin-top: 0.75rem;">3. Prerequisites &amp; Inputs</h4>
+          <p style="font-size: 0.85rem; color: #475569;">
+            A verified integer supplied by the Facilitator (Director/PS equivalent) and clear line-of-sight to the Facilitator's physical posture.
+          </p>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--lasg-green);">
+          <h4 class="card-title">4. Numbered Procedure Steps</h4>
+          <ol style="margin-left: 1.25rem; font-size: 0.83rem; line-height: 1.5; color: var(--text-main);">
+            <li><strong>Step 1 (Desk 1):</strong> Receive base figure $N$. Immediately calculate $N_1 = N + 5$. Verbally or physically transfer $N_1$ to Desk 2.</li>
+            <li><strong>Step 2 (Desk 2):</strong> Receive $N_1$. Visually observe the Facilitator.
+              <ul style="margin-left: 1rem; list-style: disc;">
+                <li>If hands are <em>inside pockets</em>: calculate $N_2 = N_1 + 2$.</li>
+                <li>If hands are <em>outside pockets</em>: $N_2 = N_1$ (no modification).</li>
+              </ul>
+              Transfer $N_2$ to Desk 3.
+            </li>
+            <li><strong>Step 3 (Desk 3):</strong> Receive $N_2$. Visually observe the Facilitator.
+              <ul style="margin-left: 1rem; list-style: disc;">
+                <li>If arms/hands are <em>folded across chest</em>: calculate $N_3 = N_2 + 1$.</li>
+                <li>If arms/hands are <em>not folded</em>: $N_3 = N_2$ (no modification).</li>
+              </ul>
+            </li>
+            <li><strong>Step 4:</strong> Announce $N_3$ as the validated final output.</li>
+          </ol>
+
+          <h4 class="card-title" style="margin-top: 0.75rem; color: #b91c1c;">5. Exceptions &amp; Controls</h4>
+          <p style="font-size: 0.82rem; color: #7f1d1d;">
+            <strong>Obscured View:</strong> If an officer's view of the Facilitator is blocked, the officer must pause the file and request visual confirmation rather than guessing.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: THE DESK FILE -->
+    <section class="slide" data-slide="3">
+      <span class="slide-badge">Slide 3 · Knowledge Repository</span>
+      <h2 class="slide-title">The Working Desk File</h2>
+      <p class="slide-subtitle">Organized by what the next officer needs to know, find, and execute on Day 1.</p>
+
+      <div class="grid-3">
+        <!-- Section 1 -->
+        <div class="card">
+          <h3 class="card-title">📁 Tab 1: Routine &amp; Role</h3>
+          <ul class="styled-list">
+            <li><strong>Seat Assignment:</strong> Middle Review Officer (Desk 2).</li>
+            <li><strong>Recurring Responsibilities:</strong> Monitor inputs from Officer 1; assess posture conditions before dispatching to Officer 3.</li>
+            <li><strong>Reporting Schedule:</strong> Real-time processing upon file arrival.</li>
+          </ul>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="card">
+          <h3 class="card-title">📚 Tab 2: Reference &amp; Tools</h3>
+          <ul class="styled-list">
+            <li><strong>Approved SOP:</strong> SOP-ADM-004 (Number Modification).</li>
+            <li><strong>Visual Identification Chart:</strong> Approved reference guide distinguishing "Hands in Pocket" vs "Hands on Hips".</li>
+            <li><strong>Directory:</strong> Direct contact for Officer 1 (Upstream) and Officer 3 (Downstream).</li>
+          </ul>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
+          <h3 class="card-title" style="color: var(--lasg-dark-green);">💡 Tab 3: Tacit Wisdom</h3>
+          <ul class="styled-list">
+            <li><strong>The Common Trap:</strong> <em>"New officers focus entirely on mental math and forget to look up at the Facilitator."</em></li>
+            <li><strong>Transitional Postures:</strong> If the Facilitator is withdrawing their hands mid-calculation, evaluate the stance at the exact second the number crossed your desk.</li>
+            <li><strong>Escalation:</strong> In case of discrepancy, summon the Observer note immediately.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 1rem; background: #fffbeb; border-color: #fde68a;">
+        <p style="font-size: 0.85rem; color: #92400e; font-weight: 600;">
+          📌 Facilitator Takeaway: If Officer 2 is abruptly deployed to another Ministry, this single page ensures their replacement doesn't skip the pocket rule or miss the visual check.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CHECKLIST & JOB AID -->
+    <section class="slide" data-slide="4">
+      <span class="slide-badge">Slide 4 · Execution Tools</span>
+      <h2 class="slide-title">Checklist vs. Job Aid</h2>
+      <p class="slide-subtitle">One ensures compliance; the other provides immediate visual recall while performing the task.</p>
+
+      <div class="grid-2">
+        <!-- The Checklist -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 class="card-title" style="margin-bottom: 0;">Operational Checklist</h3>
+            <span style="font-size: 0.72rem; background: #e2e8f0; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">VERIFICATION</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            <em>"Have I completed every mandatory check?"</em>
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.82rem;">
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" checked disabled>
+              <span><strong>Pre-Check:</strong> Base number received directly from authorized source.</span>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" checked disabled>
+              <span><strong>Step 1:</strong> Flat +5 added by Officer 1 and entered in registry.</span>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" checked disabled>
+              <span><strong>Step 2:</strong> Line-of-sight confirmed; pocket posture verified (Added +2 or +0).</span>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" checked disabled>
+              <span><strong>Step 3:</strong> Chest posture verified (Added +1 or +0).</span>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 0.5rem; background: #fff; padding: 0.5rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+              <input type="checkbox" checked disabled>
+              <span><strong>Post-Check:</strong> Final output cross-checked against observer ledger.</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- The Job Aid -->
+        <div class="card" style="border: 2px solid var(--lasg-accent); background: #fdfdf9;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <h3 class="card-title" style="margin-bottom: 0; color: #78350f;">Desk Job Aid</h3>
+            <span style="font-size: 0.72rem; background: #fef3c7; color: #92400e; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 700;">QUICK LOOKUP</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            <em>"What do I need to remember while working?"</em>
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="background: #ffffff; padding: 0.6rem; border-left: 4px solid #3b82f6; border-radius: 4px; font-size: 0.82rem;">
+              <strong>DESK 1 RULE:</strong><br>
+              <span style="font-size: 1.1rem; color: #1e3a8a; font-weight: 800;">+ 5 ALWAYS</span> (No exceptions)
+            </div>
+
+            <div style="background: #ffffff; padding: 0.6rem; border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 0.82rem;">
+              <strong>DESK 2 (POCKETS?):</strong><br>
+              👖 Hands IN Pocket = <strong style="color: #b45309;">+ 2</strong><br>
+              👐 Hands OUT = <strong style="color: #64748b;">+ 0</strong>
+            </div>
+
+            <div style="background: #ffffff; padding: 0.6rem; border-left: 4px solid #10b981; border-radius: 4px; font-size: 0.82rem;">
+              <strong>DESK 3 (CHEST FOLD?):</strong><br>
+              🙅 Arms FOLDED = <strong style="color: #047857;">+ 1</strong><br>
+              🤷 Arms OPEN = <strong style="color: #64748b;">+ 0</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <footer class="deck-nav">
+    <div>
+      <button id="btn-prev" class="btn-nav">← Previous</button>
+      <button id="btn-next" class="btn-nav">Next →</button>
+    </div>
+    <span class="slide-counter" id="indicator">Slide 1 of 4</span>
+  </footer>
+
+  <script>
+    (function() {
+      const slides = document.querySelectorAll('.slide');
+      const total = slides.length;
+      let current = 0;
+
+      const btnPrev = document.getElementById('btn-prev');
+      const btnNext = document.getElementById('btn-next');
+      const indicator = document.getElementById('indicator');
+      const toggleBtn = document.getElementById('toggle-view');
+      const fsBtn = document.getElementById('btn-fullscreen');
+
+      function showSlide(index) {
+        if (index < 0) index = 0;
+        if (index >= total) index = total - 1;
+        current = index;
+
+        slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+        btnPrev.disabled = (current === 0);
+        btnNext.disabled = (current === total - 1);
+        indicator.textContent = `Slide ${current + 1} of ${total}`;
+      }
+
+      btnPrev.addEventListener('click', () => showSlide(current - 1));
+      btnNext.addEventListener('click', () => showSlide(current + 1));
+
+      window.addEventListener('keydown', (e) => {
+        if (document.body.classList.contains('list-mode')) return;
+        if (e.key === 'ArrowRight' || e.key === ' ') showSlide(current + 1);
+        if (e.key === 'ArrowLeft') showSlide(current - 1);
+      });
+
+      toggleBtn.addEventListener('click', () => {
+        const isList = document.body.classList.toggle('list-mode');
+        toggleBtn.textContent = isList ? '🖥️ Toggle Slide Deck View' : '📄 Toggle Document View';
+        if (!isList) showSlide(current);
+      });
+
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      showSlide(0);
+    })();
+  </script>
+</body>
+</html>

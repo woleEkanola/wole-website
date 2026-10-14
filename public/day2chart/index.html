@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Process Flowchart: Mouse-Over Zoom Loupe</title>
+  <style>
+    :root {
+      --lasg-green: #0b6623;
+      --lasg-dark-green: #074317;
+      --lasg-gold: #d4af37;
+      --bg-canvas: #0f172a;
+      --card-bg: #ffffff;
+      --border-color: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      background-color: var(--bg-canvas);
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.5rem 1rem;
+    }
+
+    /* Top Control Bar */
+    header {
+      width: 100%;
+      max-width: 960px;
+      background: #1e293b;
+      color: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 2px solid var(--lasg-gold);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .title-group h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #f8fafc;
+    }
+
+    .title-group p {
+      font-size: 0.8rem;
+      color: var(--lasg-gold);
+      margin-top: 0.2rem;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+    }
+
+    .controls label {
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .controls input[type="range"] {
+      cursor: pointer;
+      accent-color: var(--lasg-gold);
+      width: 100px;
+    }
+
+    .zoom-val {
+      font-size: 0.8rem;
+      color: var(--lasg-gold);
+      font-weight: 700;
+      min-width: 32px;
+    }
+
+    /* Main Display Frame */
+    main {
+      width: 100%;
+      max-width: 960px;
+      background: var(--card-bg);
+      border-radius: 0 0 12px 12px;
+      padding: 1.5rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .instruction-hint {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* Diagram Stage & Zoom Glass */
+    .viewport-box {
+      position: relative;
+      width: 100%;
+      max-width: 880px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f8fafc;
+      cursor: crosshair;
+    }
+
+    #target-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
+    }
+
+    /* Magnifier Loupe */
+    #magnifier {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3.5px solid var(--lasg-gold);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4), inset 0 0 12px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      display: none;
+      overflow: hidden;
+      background-color: #ffffff;
+      background-repeat: no-repeat;
+      z-index: 50;
+    }
+
+    #magnifier::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      border: 1px solid rgba(11, 102, 35, 0.4);
+      border-radius: 50%;
+    }
+
+    @media (max-width: 768px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .controls { width: 100%; justify-content: space-between; }
+      #magnifier { width: 140px; height: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Bar Controls -->
+  <header>
+    <div class="title-group">
+      <h1>Lagos State Civil Service · Process Flowchart</h1>
+      <p>Standard Notation: Number Processing &amp; Posture Verification Chain[cite: 35]</p>
+    </div>
+    <div class="controls">
+      <label for="zoom-slider">Zoom Factor:</label>
+      <input type="range" id="zoom-slider" min="1.0" max="4.0" step="0.25" value="1.5">
+      <span class="zoom-val" id="zoom-readout">1.5×</span>
+    </div>
+  </header>
+
+  <!-- Interactive Stage -->
+  <main>
+    <div class="instruction-hint">
+      <span>🔍</span>
+      <span>Hover the mouse over any terminal, decision diamond, or calculation step to zoom in.</span>
+    </div>
+
+    <div class="viewport-box" id="viewport">
+      <!-- The Loupe Element -->
+      <div id="magnifier"></div>
+
+      <!-- The High-Resolution SVG Diagram -->
+      <svg id="target-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 1280" width="880" height="1280">
+        <defs>
+          <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.1"/>
+          </filter>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#1e293b"/>
+          </marker>
+        </defs>
+
+        <!-- Top Header Banner inside Diagram -->
+        <rect x="0" y="0" width="880" height="90" fill="#074317"/>
+        <text x="440" y="40" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff" letter-spacing="0.5">LAGOS STATE CIVIL SERVICE · PROCESS FLOWCHART</text>
+        <text x="440" y="68" text-anchor="middle" font-size="14" font-weight="500" fill="#d4af37">Standard Notation: 3-Officer Number Processing &amp; Posture Verification Chain</text>
+
+        <!-- 1. TERMINAL: START -->
+        <g filter="url(#shadow)">
+          <rect x="330" y="120" width="220" height="55" rx="27.5" fill="#0b6623" stroke="#074317" stroke-width="2.5"/>
+          <text x="440" y="145" text-anchor="middle" font-size="13" font-weight="700" fill="#d4af37" text-transform="uppercase">START / TRIGGER</text>
+          <text x="440" y="162" text-anchor="middle" font-size="12" font-weight="500" fill="#ffffff">Facilitator Initiates Chain</text>
+        </g>
+        <line x1="440" y1="175" x2="440" y2="210" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- 2. DATA INPUT -->
+        <g filter="url(#shadow)">
+          <polygon points="330,265 300,215 550,215 580,265" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+          <text x="440" y="237" text-anchor="middle" font-size="11" font-weight="800" fill="#0369a1">INPUT DATA</text>
+          <text x="440" y="254" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">Base Number Given (N)</text>
+        </g>
+        <line x1="440" y1="265" x2="440" y2="305" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- 3. STEP 1 (Add 5) -->
+        <g filter="url(#shadow)">
+          <rect x="300" y="305" width="280" height="65" rx="6" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <text x="440" y="327" text-anchor="middle" font-size="11" font-weight="800" fill="#0b6623">STEP 1 · DESK OFFICER 1</text>
+          <text x="440" y="345" text-anchor="middle" font-size="14" font-weight="700" fill="#0f172a">Add 5 to Received Number</text>
+          <text x="440" y="361" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">Calculates: N₁ = N + 5</text>
+        </g>
+        <line x1="440" y1="370" x2="440" y2="425" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="450" y="402" font-size="11" font-weight="600" fill="#475569">Transfers N₁</text>
+
+        <!-- 4. DECISION 1 (Hands in pockets?) -->
+        <g filter="url(#shadow)">
+          <polygon points="440,425 580,495 440,565 300,495" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="440" y="480" text-anchor="middle" font-size="11" font-weight="800" fill="#92400e">DECISION 1 · OFFICER 2</text>
+          <text x="440" y="498" text-anchor="middle" font-size="13" font-weight="700" fill="#78350f">Hands in Pockets?</text>
+          <text x="440" y="515" text-anchor="middle" font-size="10" font-weight="600" fill="#b45309">(Visual Tacit Check)</text>
+        </g>
+
+        <!-- Decision 1 YES -->
+        <line x1="580" y1="495" x2="680" y2="495" stroke="#1e293b" stroke-width="2"/>
+        <line x1="680" y1="495" x2="680" y2="595" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="610" y="485" font-size="12" font-weight="800" fill="#15803d">YES</text>
+
+        <g filter="url(#shadow)">
+          <rect x="580" y="595" width="200" height="55" rx="6" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <text x="680" y="618" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Add 2 to Value</text>
+          <text x="680" y="637" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">Calculates: N₂ = N₁ + 2</text>
+        </g>
+
+        <!-- Decision 1 NO -->
+        <line x1="300" y1="495" x2="200" y2="495" stroke="#1e293b" stroke-width="2"/>
+        <line x1="200" y1="495" x2="200" y2="595" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="245" y="485" font-size="12" font-weight="800" fill="#b91c1c">NO</text>
+
+        <g filter="url(#shadow)">
+          <rect x="100" y="595" width="200" height="55" rx="6" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <text x="200" y="618" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Pass Untouched</text>
+          <text x="200" y="637" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">Calculates: N₂ = N₁</text>
+        </g>
+
+        <!-- Reconverge to Decision 2 -->
+        <line x1="200" y1="650" x2="200" y2="695" stroke="#1e293b" stroke-width="2"/>
+        <line x1="680" y1="650" x2="680" y2="695" stroke="#1e293b" stroke-width="2"/>
+        <line x1="200" y1="695" x2="680" y2="695" stroke="#1e293b" stroke-width="2"/>
+        <line x1="440" y1="695" x2="440" y2="735" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="450" y="718" font-size="11" font-weight="600" fill="#475569">Transfers N₂</text>
+
+        <!-- 5. DECISION 2 (Arms folded to chest?) -->
+        <g filter="url(#shadow)">
+          <polygon points="440,735 580,805 440,875 300,805" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="440" y="790" text-anchor="middle" font-size="11" font-weight="800" fill="#92400e">DECISION 2 · OFFICER 3</text>
+          <text x="440" y="808" text-anchor="middle" font-size="13" font-weight="700" fill="#78350f">Arms Folded to Chest?</text>
+          <text x="440" y="825" text-anchor="middle" font-size="10" font-weight="600" fill="#b45309">(Visual Tacit Check)</text>
+        </g>
+
+        <!-- Decision 2 YES -->
+        <line x1="580" y1="805" x2="680" y2="805" stroke="#1e293b" stroke-width="2"/>
+        <line x1="680" y1="805" x2="680" y2="905" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="610" y="795" font-size="12" font-weight="800" fill="#15803d">YES</text>
+
+        <g filter="url(#shadow)">
+          <rect x="580" y="905" width="200" height="55" rx="6" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <text x="680" y="928" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Add 1 to Value</text>
+          <text x="680" y="947" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">Calculates: N₃ = N₂ + 1</text>
+        </g>
+
+        <!-- Decision 2 NO -->
+        <line x1="300" y1="805" x2="200" y2="805" stroke="#1e293b" stroke-width="2"/>
+        <line x1="200" y1="805" x2="200" y2="905" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="245" y="795" font-size="12" font-weight="800" fill="#b91c1c">NO</text>
+
+        <g filter="url(#shadow)">
+          <rect x="100" y="905" width="200" height="55" rx="6" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+          <text x="200" y="928" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Pass Untouched</text>
+          <text x="200" y="947" text-anchor="middle" font-size="11" font-weight="500" fill="#64748b">Calculates: N₃ = N₂</text>
+        </g>
+
+        <!-- Reconverge to Output -->
+        <line x1="200" y1="960" x2="200" y2="1005" stroke="#1e293b" stroke-width="2"/>
+        <line x1="680" y1="960" x2="680" y2="1005" stroke="#1e293b" stroke-width="2"/>
+        <line x1="200" y1="1005" x2="680" y2="1005" stroke="#1e293b" stroke-width="2"/>
+        <line x1="440" y1="1005" x2="440" y2="1045" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+        <text x="450" y="1028" font-size="11" font-weight="600" fill="#475569">Transfers N₃</text>
+
+        <!-- 6. DATA OUTPUT -->
+        <g filter="url(#shadow)">
+          <polygon points="320,1105 290,1050 560,1050 590,1105" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+          <text x="440" y="1073" text-anchor="middle" font-size="11" font-weight="800" fill="#15803d">OUTPUT VALUE</text>
+          <text x="440" y="1092" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Announce Calculated Sum (N₃)</text>
+        </g>
+        <line x1="440" y1="1105" x2="440" y2="1145" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <!-- 7. TERMINAL: END -->
+        <g filter="url(#shadow)">
+          <rect x="330" y="1145" width="220" height="50" rx="25" fill="#0b6623" stroke="#074317" stroke-width="2.5"/>
+          <text x="440" y="1176" text-anchor="middle" font-size="14" font-weight="800" fill="#ffffff" letter-spacing="1">PROCESS END</text>
+        </g>
+
+        <!-- STANDARD LEGEND -->
+        <g transform="translate(40, 1220)">
+          <rect x="0" y="0" width="800" height="42" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+          
+          <rect x="15" y="13" width="30" height="16" rx="8" fill="#0b6623"/>
+          <text x="52" y="25" font-size="11" font-weight="600" fill="#334155">Terminal (Start/End)</text>
+
+          <polygon points="190,29 180,13 220,13 230,29" fill="#e0f2fe" stroke="#0284c7"/>
+          <text x="238" y="25" font-size="11" font-weight="600" fill="#334155">Input / Output</text>
+
+          <rect x="345" y="13" width="24" height="16" rx="2" fill="#ffffff" stroke="#334155"/>
+          <text x="376" y="25" font-size="11" font-weight="600" fill="#334155">Process Action</text>
+
+          <polygon points="485,13 497,21 485,29 473,21" fill="#fef3c7" stroke="#d97706"/>
+          <text x="505" y="25" font-size="11" font-weight="600" fill="#334155">Decision Point</text>
+
+          <line x1="615" y1="21" x2="645" y2="21" stroke="#1e293b" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="655" y="25" font-size="11" font-weight="600" fill="#334155">Direction of Flow</text>
+        </g>
+      </svg>
+    </div>
+  </main>
+
+  <!-- Interactive Loupe Script -->
+  <script>
+    (function() {
+      const viewport = document.getElementById('viewport');
+      const svg = document.getElementById('target-svg');
+      const magnifier = document.getElementById('magnifier');
+      const slider = document.getElementById('zoom-slider');
+      const readout = document.getElementById('zoom-readout');
+
+      // Initialize with default 1.5 zoom factor
+      let zoomLevel = parseFloat(slider.value);
+      let svgDataUrl = "";
+
+      function cacheSvgAsBackground() {
+        const serializer = new XMLSerializer();
+        const svgStr = serializer.serializeToString(svg);
+        const encoded = encodeURIComponent(svgStr);
+        svgDataUrl = `data:image/svg+xml;charset=utf-8,${encoded}`;
+        magnifier.style.backgroundImage = `url("${svgDataUrl}")`;
+      }
+
+      cacheSvgAsBackground();
+
+      slider.addEventListener('input', (e) => {
+        zoomLevel = parseFloat(e.target.value);
+        readout.textContent = `${zoomLevel.toFixed(1)}×`;
+      });
+
+      viewport.addEventListener('mousemove', (e) => {
+        const rect = viewport.getBoundingClientRect();
+        
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (x < 0 || y < 0 || x > rect.width || y > rect.height) {
+          magnifier.style.display = 'none';
+          return;
+        }
+
+        magnifier.style.display = 'block';
+
+        const w = magnifier.offsetWidth / 2;
+        const h = magnifier.offsetHeight / 2;
+        magnifier.style.left = `${x - w}px`;
+        magnifier.style.top = `${y - h}px`;
+
+        const bgWidth = rect.width * zoomLevel;
+        const bgHeight = rect.height * zoomLevel;
+        magnifier.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
+
+        const bgX = (x * zoomLevel) - w;
+        const bgY = (y * zoomLevel) - h;
+        magnifier.style.backgroundPosition = `-${bgX}px -${bgY}px`;
+      });
+
+      viewport.addEventListener('mouseleave', () => {
+        magnifier.style.display = 'none';
+      });
+
+      window.addEventListener('resize', cacheSvgAsBackground);
+    })();
+  </script>
+</body>
+</html>
